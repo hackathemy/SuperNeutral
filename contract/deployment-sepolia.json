@@ -1,0 +1,18 @@
+{
+  "network": "sepolia",
+  "timestamp": "2025-10-18T07:38:16.070Z",
+  "contracts": {
+    "MockPYUSD": "0x126E4bB45D90C8b5D5051337f0c566145a1640f1",
+    "EthereumLoanNFT": "0x32bb2BcD4bb509F3d81b2cEA205AEaB1c9e0c4a0",
+    "MockStETHVault": "0xf2A7Cfe5f0BC42A62e362E707599313Ed3B2122c",
+    "EthereumLendingPool": "0x1ABB9b8023CF6737B9f942d485d1bC3a2f0847C6",
+    "PythOracle": "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21"
+  },
+  "deployer": "0x2FCCba2f198066c5Ea3e414dD50F78E25c3aF552",
+  "explorerUrls": {
+    "MockPYUSD": "https://sepolia.etherscan.io/address/0x126E4bB45D90C8b5D5051337f0c566145a1640f1",
+    "EthereumLoanNFT": "https://sepolia.etherscan.io/address/0x32bb2BcD4bb509F3d81b2cEA205AEaB1c9e0c4a0",
+    "MockStETHVault": "https://sepolia.etherscan.io/address/0xf2A7Cfe5f0BC42A62e362E707599313Ed3B2122c",
+    "EthereumLendingPool": "https://sepolia.etherscan.io/address/0x1ABB9b8023CF6737B9f942d485d1bC3a2f0847C6"
+  }
+}

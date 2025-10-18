@@ -1,0 +1,39 @@
+{
+  "name": "eth-online",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/deploy-simple.js",
+    "deploy:ethers": "hardhat run scripts/deploy-ethers.js",
+    "deploy:raw": "hardhat run scripts/deploy-raw.js",
+    "deploy:simple": "hardhat run scripts/deploy-simple.js",
+    "deploy:local": "hardhat run scripts/deploy-simple.js --network localhost",
+    "deploy:lending": "hardhat run scripts/deploy-lending.js",
+    "deploy:sepolia": "hardhat run scripts/deploy-sepolia.js --network sepolia",
+    "deploy:sepolia:mock": "hardhat run scripts/deploy-sepolia-mock.js --network sepolia",
+    "deploy:updated": "hardhat run scripts/deploy-updated-lending.js --network sepolia",
+    "test:sepolia": "hardhat run scripts/test-sepolia.js --network sepolia",
+    "test:borrow": "hardhat run scripts/test-borrow-liquidate.js --network sepolia",
+    "test:full": "hardhat run scripts/test-full-flow.js --network sepolia",
+    "test:simple": "hardhat run scripts/test-simple-borrow.js --network sepolia",
+    "test:liquidation": "hardhat run scripts/test-liquidation.js --network sepolia",
+    "clean": "hardhat clean"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.0",
+    "chai": "^5.3.3",
+    "ethers": "^6.15.0",
+    "hardhat": "^3.0.7",
+    "@openzeppelin/contracts": "^5.0.1",
+    "@pythnetwork/pyth-sdk-solidity": "^4.0.0",
+    "dotenv": "^16.4.5"
+  }
+}

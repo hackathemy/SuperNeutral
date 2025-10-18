@@ -1,0 +1,83 @@
+# Dependencies
+node_modules/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.secret
+mnemonic.txt
+secrets.json
+.secrets/
+
+# Hardhat files
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Testing
+coverage/
+coverage.json
+.nyc_output/
+
+# Deployment info (optional - comment out if you want to track)
+# deployment-*.json
+# deployments/
+
+# Build outputs
+dist/
+build/
+out/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Package manager
+.pnpm-debug.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Lock files (optional - uncomment if not tracking)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo
+
+# Claude documentation (optional)
+# claudedocs/
+
+# Local test scripts
+test-local-*.js
