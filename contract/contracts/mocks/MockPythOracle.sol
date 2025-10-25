@@ -25,8 +25,8 @@ contract MockPythOracle {
         // Set default prices
         // ETH/USD = $2000 (expo = -8, so price = 2000 * 10^8)
         prices[ETH_USD_FEED] = Price({
-            price: 200000000000, // $2000 with 8 decimals
-            conf: 100000000,     // $1 confidence
+            price: 200000000000, // $20000 with 8 decimals
+            conf: 2000000000,     // $20 confidence
             expo: -8,
             publishTime: block.timestamp
         });

@@ -79,7 +79,7 @@ export default function MyLoansPage() {
         address: CONTRACTS.LendingPool,
         abi: EthereumLendingPoolABI,
         functionName: "repay",
-        args: [selectedLoan, parseUnits(repayAmount, 6)],
+        args: [selectedLoan] as const,
       });
     } catch (error) {
       console.error("Repay error:", error);

@@ -31,7 +31,7 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <FeatureCard
             title="🏦 Borrow PYUSD"
-            description="Use your ETH as collateral to borrow PYUSD stablecoin with flexible liquidation ratios (50-80%)"
+            description="Use your ETH as collateral to borrow PYUSD. Supports both Sepolia (direct) and Arbitrum Sepolia (cross-chain via Avail Nexus)"
             link="/borrow"
           />
           <FeatureCard

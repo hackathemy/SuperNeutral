@@ -78,8 +78,19 @@ async function main() {
         const vaultAddress = await stETHVault.getAddress();
         console.log("✅ MockStETHVault deployed to:", vaultAddress);
 
-        // 5. Deploy EthereumLendingPool with Mock Pyth Oracle
-        console.log("\n5️⃣ Deploying EthereumLendingPool...");
+        // 5. Deploy StakedPYUSD
+        console.log("\n5️⃣ Deploying StakedPYUSD...");
+        const spyusdArtifact = JSON.parse(
+            readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json"), "utf8")
+        );
+        const spyusdFactory = new ethers.ContractFactory(spyusdArtifact.abi, spyusdArtifact.bytecode, signer);
+        const stakedPYUSD = await spyusdFactory.deploy();
+        await stakedPYUSD.waitForDeployment();
+        const spyusdAddress = await stakedPYUSD.getAddress();
+        console.log("✅ StakedPYUSD deployed to:", spyusdAddress);
+
+        // 6. Deploy EthereumLendingPool with Mock Pyth Oracle
+        console.log("\n6️⃣ Deploying EthereumLendingPool...");
         const poolArtifact = JSON.parse(
             readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json"), "utf8")
         );
@@ -88,13 +99,14 @@ async function main() {
             pyusdAddress,      // Mock PYUSD
             nftAddress,        // Loan NFT
             vaultAddress,      // Mock Vault
-            pythAddress        // Mock Pyth Oracle
+            pythAddress,       // Mock Pyth Oracle
+            spyusdAddress      // Staked PYUSD
         );
         await lendingPool.waitForDeployment();
         const poolAddress = await lendingPool.getAddress();
         console.log("✅ EthereumLendingPool deployed to:", poolAddress);
 
-        // 6. Configure access control
+        // 7. Configure access control
         console.log("\n🔧 Configuring access control...");
 
         // Grant MINTER_ROLE to lending pool for NFT
@@ -108,7 +120,12 @@ async function main() {
         await authTx.wait();
         console.log("✅ Authorized lending pool in vault");
 
-        // 7. Setup initial liquidity
+        // Set lending pool address in StakedPYUSD
+        const setPoolTx = await stakedPYUSD.setLendingPool(poolAddress);
+        await setPoolTx.wait();
+        console.log("✅ Set lending pool address in sPYUSD");
+
+        // 8. Setup initial liquidity
         console.log("\n💰 Setting up initial liquidity...");
 
         // Mint PYUSD to the pool for liquidity
@@ -121,11 +138,11 @@ async function main() {
         const approveTx = await mockPYUSD.approve(poolAddress, mintAmount);
         await approveTx.wait();
 
-        const supplyTx = await lendingPool.supplyPYUSD(mintAmount);
+        const supplyTx = await lendingPool.supplyPYUSD(mintAmount, ethers.ZeroAddress);
         await supplyTx.wait();
         console.log("✅ Supplied 100,000 PYUSD to lending pool");
 
-        // 8. Verify Mock Pyth Oracle prices
+        // 9. Verify Mock Pyth Oracle prices
         console.log("\n📊 Verifying Mock Pyth Oracle prices...");
         const ethPrice = await lendingPool.getETHPrice();
         console.log("✅ ETH Price:", ethers.formatUnits(ethPrice, 8), "USD");
@@ -139,6 +156,7 @@ async function main() {
         console.log("  MockPYUSD:", pyusdAddress);
         console.log("  EthereumLoanNFT:", nftAddress);
         console.log("  MockStETHVault:", vaultAddress);
+        console.log("  StakedPYUSD:", spyusdAddress);
         console.log("  EthereumLendingPool:", poolAddress);
         console.log("=================================");
         console.log("\n📝 Next Steps:");
@@ -156,6 +174,7 @@ async function main() {
                 MockPYUSD: pyusdAddress,
                 EthereumLoanNFT: nftAddress,
                 MockStETHVault: vaultAddress,
+                StakedPYUSD: spyusdAddress,
                 EthereumLendingPool: poolAddress
             },
             deployer: signerAddress,
@@ -164,6 +183,7 @@ async function main() {
                 MockPYUSD: `https://sepolia.etherscan.io/address/${pyusdAddress}`,
                 EthereumLoanNFT: `https://sepolia.etherscan.io/address/${nftAddress}`,
                 MockStETHVault: `https://sepolia.etherscan.io/address/${vaultAddress}`,
+                StakedPYUSD: `https://sepolia.etherscan.io/address/${spyusdAddress}`,
                 EthereumLendingPool: `https://sepolia.etherscan.io/address/${poolAddress}`
             }
         };

@@ -1,4 +1,4 @@
-// Auto-generated from artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json
+// Auto-generated from contract/artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json
 // DO NOT EDIT MANUALLY
 
 export const EthereumLendingPoolABI = [
@@ -416,6 +416,11 @@ export const EthereumLendingPoolABI = [
         "internalType": "uint256",
         "name": "shortRatio",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "onBehalfOf",
+        "type": "address"
       }
     ],
     "name": "borrow",
@@ -836,6 +841,11 @@ export const EthereumLendingPoolABI = [
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "onBehalfOf",
+        "type": "address"
       }
     ],
     "name": "supplyPYUSD",

@@ -1,4 +1,4 @@
-// Auto-generated from artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json
+// Auto-generated from contract/artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json
 // DO NOT EDIT MANUALLY
 
 export const MockPYUSDABI = [

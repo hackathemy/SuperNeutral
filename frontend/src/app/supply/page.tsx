@@ -54,13 +54,13 @@ export default function SupplyPage() {
   const { data: totalSupplied } = useReadContract({
     address: CONTRACTS.LendingPool,
     abi: EthereumLendingPoolABI,
-    functionName: "totalSupplied",
+    functionName: "getTotalSupply",
   });
 
   const { data: totalBorrowed } = useReadContract({
     address: CONTRACTS.LendingPool,
     abi: EthereumLendingPoolABI,
-    functionName: "totalBorrowed",
+    functionName: "getTotalBorrowed",
   });
 
   // Calculate sPYUSD to mint for supply amount
@@ -80,7 +80,7 @@ export default function SupplyPage() {
   });
 
   const handleSupply = async () => {
-    if (!supplyAmount) return;
+    if (!supplyAmount || !address) return;
 
     try {
       const amount = parseUnits(supplyAmount, 6);
@@ -98,7 +98,7 @@ export default function SupplyPage() {
         address: CONTRACTS.LendingPool,
         abi: EthereumLendingPoolABI,
         functionName: "supplyPYUSD",
-        args: [amount],
+        args: [amount, address] as const,
       });
 
       setSupplyAmount("");

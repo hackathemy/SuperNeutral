@@ -95,21 +95,25 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
     /**
      * @dev Supply PYUSD to the lending pool and receive sPYUSD
      * @param amount Amount of PYUSD to supply
+     * @param onBehalfOf Address to mint the sPYUSD to (address(0) for msg.sender)
      * @return spyusdAmount Amount of sPYUSD minted
      */
-    function supplyPYUSD(uint256 amount) external override nonReentrant whenNotPaused returns (uint256 spyusdAmount) {
+    function supplyPYUSD(uint256 amount, address onBehalfOf) external override nonReentrant whenNotPaused returns (uint256 spyusdAmount) {
         require(amount > 0, "Zero supply");
 
-        // Transfer PYUSD from user
+        // Determine the actual recipient address
+        address recipient = onBehalfOf == address(0) ? msg.sender : onBehalfOf;
+
+        // Transfer PYUSD from msg.sender (always the one paying)
         PYUSD.safeTransferFrom(msg.sender, address(this), amount);
 
-        // Mint sPYUSD to user based on current exchange rate
-        spyusdAmount = stakedPYUSD.mint(msg.sender, amount);
+        // Mint sPYUSD to recipient based on current exchange rate
+        spyusdAmount = stakedPYUSD.mint(recipient, amount);
 
         // Update total supplied
         totalPYUSDSupplied += amount;
 
-        emit PYUSDSupplied(msg.sender, amount);
+        emit PYUSDSupplied(recipient, amount);
 
         return spyusdAmount;
     }
@@ -145,13 +149,17 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
      * @param pyusdAmount Amount of PYUSD to borrow
      * @param liquidationRatio Liquidation ratio in basis points (5000-8000)
      * @param shortRatio Short position ratio in basis points (0-3000)
+     * @param onBehalfOf Address to mint the loan NFT to (address(0) for msg.sender)
      * @return tokenId The NFT token ID representing the loan
      */
     function borrow(
         uint256 pyusdAmount,
         uint256 liquidationRatio,
-        uint256 shortRatio
+        uint256 shortRatio,
+        address onBehalfOf
     ) external payable override nonReentrant whenNotPaused notEmergency returns (uint256 tokenId) {
+        // Determine the actual borrower address
+        address borrower = onBehalfOf == address(0) ? msg.sender : onBehalfOf;
         require(msg.value > 0, "Zero collateral");
         require(pyusdAmount > 0, "Zero borrow");
         require(liquidationRatio >= MIN_LIQUIDATION_RATIO && liquidationRatio <= MAX_LIQUIDATION_RATIO, "Invalid liquidation ratio");
@@ -173,7 +181,7 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         // Create loan
         tokenId = nextTokenId++;
         loans[tokenId] = Loan({
-            borrower: msg.sender,
+            borrower: borrower,
             collateralAmount: msg.value,
             borrowAmount: pyusdAmount,
             liquidationRatio: liquidationRatio,
@@ -184,7 +192,7 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         });
 
         // Mint NFT
-        loanNFT.mint(msg.sender, tokenId);
+        loanNFT.mint(borrower, tokenId);
 
         // Store metadata in NFT
         EthereumLoanNFT(address(loanNFT)).setLoanMetadata(
@@ -192,10 +200,10 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
             msg.value,
             pyusdAmount,
             liquidationRatio,
-            msg.sender
+            borrower
         );
 
-        userLoanIds[msg.sender].push(tokenId);
+        userLoanIds[borrower].push(tokenId);
 
         // Update totals
         totalETHCollateral += msg.value;
@@ -205,9 +213,9 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         stETHVault.depositETH{value: msg.value}();
 
         // Transfer PYUSD to borrower
-        PYUSD.safeTransfer(msg.sender, pyusdAmount);
+        PYUSD.safeTransfer(borrower, pyusdAmount);
 
-        emit Borrowed(msg.sender, tokenId, msg.value, pyusdAmount);
+        emit Borrowed(borrower, tokenId, msg.value, pyusdAmount);
 
         return tokenId;
     }
