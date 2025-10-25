@@ -113,16 +113,18 @@ export default function BorrowPage() {
       const collateralWei = parseEther(collateral);
       const pyusdAmount = BigInt(Math.floor(parseFloat(borrowAmount) * 10 ** 6));
 
-      console.log("🌉 Executing cross-chain borrow with ETH value...");
+      console.log("🌉 Starting cross-chain execute...");
+      console.log("Execute with:", collateral, "ETH from Arbitrum Sepolia → Sepolia");
+      console.log("Borrow:", borrowAmount, "PYUSD");
 
-      // Use Nexus SDK's execute (SDK will handle bridging if needed)
+      // Use Nexus SDK's execute for cross-chain operations with automatic chain abstraction
       const result = await nexusSdk.execute({
         toChainId: sepolia.id,
         contractAddress: CONTRACTS.LendingPool,
         contractAbi: EthereumLendingPoolABI,
         functionName: "borrow",
         buildFunctionParams: (token: any, amount: string, chainId: number, userAddress: `0x${string}`) => {
-          console.log("buildFunctionParams called:", { token, amount, chainId, userAddress });
+          console.log("📝 Building function params:", { token, amount, chainId, userAddress });
           return {
             functionParams: [
               pyusdAmount,
@@ -130,28 +132,39 @@ export default function BorrowPage() {
               BigInt(shortRatio * 100),
               userAddress, // onBehalfOf - NFT goes to original user
             ] as const,
-            value: collateralWei.toString(), // ETH value to send
+            value: collateralWei.toString(), // ETH value for the transaction
           };
         },
-        value: collateralWei.toString(), // ETH value for the transaction
         enableTransactionPolling: true,
         waitForReceipt: true,
         receiptTimeout: 120000,
       });
 
-      if (result.transactionHash) {
-        setTxHash(result.transactionHash);
+      if (result.executeTransactionHash) {
+        setTxHash(result.executeTransactionHash);
         console.log("✅ Cross-chain borrow successful!");
-        console.log("Transaction hash:", result.transactionHash);
-        if (result.explorerUrl) {
-          console.log("Explorer URL:", result.explorerUrl);
+        console.log("Execute TX:", result.executeTransactionHash);
+        if (result.executeExplorerUrl) {
+          console.log("Explorer:", result.executeExplorerUrl);
         }
       } else {
-        throw new Error("Transaction failed - no transaction hash");
+        throw new Error("Transaction failed - no execute hash");
       }
     } catch (err: any) {
-      console.error("Cross-chain borrow error:", err);
-      setError(err.message || "Cross-chain transaction failed");
+      console.error("❌ Cross-chain borrow error:", err);
+
+      // Better error messages for common issues
+      if (err.message?.includes("Token contract address not found")) {
+        setError("⚠️ Cross-chain ETH bridging is not available on testnet. Please switch to Sepolia network to borrow directly.");
+      } else if (err.message?.includes("universe is not supported")) {
+        setError("⚠️ Chain combination not supported. Please try direct borrow on Sepolia.");
+      } else if (err.message?.includes("User denied")) {
+        setError("Transaction cancelled by user.");
+      } else if (err.message?.includes("Insufficient")) {
+        setError("Insufficient balance. Please check your ETH balance on Arbitrum Sepolia.");
+      } else {
+        setError(err.message || "Cross-chain transaction failed. Please try again.");
+      }
     } finally {
       setIsProcessing(false);
     }
