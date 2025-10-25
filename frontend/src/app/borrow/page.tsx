@@ -28,23 +28,33 @@ export default function BorrowPage() {
   const isCrossChain = chain?.id === arbitrumSepolia.id;
   const isDirectBorrow = chain?.id === sepolia.id;
 
-  // Initialize Nexus SDK for cross-chain borrow
+  // Initialize Nexus SDK for cross-chain borrow (only on Arbitrum Sepolia)
   useEffect(() => {
     const initNexus = async () => {
-      if (isCrossChain && typeof window !== "undefined" && window.ethereum) {
+      // Only initialize if connected to Arbitrum Sepolia and SDK not already initialized
+      console.log('nexusSdk :',nexusSdk)
+        if (
+        chain?.id === arbitrumSepolia.id &&
+        !nexusSdk &&
+        typeof window !== "undefined" &&
+        window.ethereum
+      ) {
         try {
+          console.log("Initializing Nexus SDK for cross-chain borrow...");
           const sdk = new NexusSDK({
-            network: "testnet" as any,
+            network: "testnet",debug: true,
           });
           await sdk.initialize(window.ethereum);
           setNexusSdk(sdk);
+
+          console.log("✅ Nexus SDK initialized");
         } catch (err) {
           console.error("Failed to initialize Nexus SDK:", err);
         }
       }
     };
     initNexus();
-  }, [isCrossChain]);
+  }, [chain?.id, nexusSdk]);
 
   // Get ETH price from Sepolia contract
   const { data: ethPrice } = useReadContract({
@@ -103,39 +113,41 @@ export default function BorrowPage() {
       const collateralWei = parseEther(collateral);
       const pyusdAmount = BigInt(Math.floor(parseFloat(borrowAmount) * 10 ** 6));
 
-      // Use Nexus SDK's bridgeAndExecute
-      const result = await nexusSdk.bridgeAndExecute({
+      console.log("🌉 Executing cross-chain borrow with ETH value...");
+
+      // Use Nexus SDK's execute (SDK will handle bridging if needed)
+      const result = await nexusSdk.execute({
         toChainId: sepolia.id,
-        token: "ETH" as any,
-        amount: collateral,
-        execute: {
-          contractAddress: CONTRACTS.LendingPool,
-          contractAbi: EthereumLendingPoolABI,
-          functionName: "borrow",
-          buildFunctionParams: (token: any, bridgedAmount: string, chainId: number, userAddress: `0x${string}`) => {
-            return {
-              functionParams: [
-                pyusdAmount,
-                BigInt(liquidationRatio * 100),
-                BigInt(shortRatio * 100),
-                userAddress, // onBehalfOf - NFT goes to original user
-              ] as const,
-              value: collateralWei.toString(),
-            };
-          },
-          value: collateralWei.toString(),
-          enableTransactionPolling: true,
-          waitForReceipt: true,
-          receiptTimeout: 120000,
+        contractAddress: CONTRACTS.LendingPool,
+        contractAbi: EthereumLendingPoolABI,
+        functionName: "borrow",
+        buildFunctionParams: (token: any, amount: string, chainId: number, userAddress: `0x${string}`) => {
+          console.log("buildFunctionParams called:", { token, amount, chainId, userAddress });
+          return {
+            functionParams: [
+              pyusdAmount,
+              BigInt(liquidationRatio * 100),
+              BigInt(shortRatio * 100),
+              userAddress, // onBehalfOf - NFT goes to original user
+            ] as const,
+            value: collateralWei.toString(), // ETH value to send
+          };
         },
+        value: collateralWei.toString(), // ETH value for the transaction
+        enableTransactionPolling: true,
+        waitForReceipt: true,
+        receiptTimeout: 120000,
       });
 
-      if (result.executeTransactionHash) {
-        setTxHash(result.executeTransactionHash);
+      if (result.transactionHash) {
+        setTxHash(result.transactionHash);
         console.log("✅ Cross-chain borrow successful!");
-        console.log("Execute TX:", result.executeTransactionHash);
+        console.log("Transaction hash:", result.transactionHash);
+        if (result.explorerUrl) {
+          console.log("Explorer URL:", result.explorerUrl);
+        }
       } else {
-        throw new Error("Transaction failed - no execute hash");
+        throw new Error("Transaction failed - no transaction hash");
       }
     } catch (err: any) {
       console.error("Cross-chain borrow error:", err);
@@ -163,23 +175,29 @@ export default function BorrowPage() {
     if (isCrossChain) {
       return {
         name: "Arbitrum Sepolia → Sepolia",
-        color: "purple",
         description: "Cross-chain borrow via Avail Nexus",
         icon: "🌉",
+        badgeClasses: "inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg border-2 border-purple-300 dark:border-purple-600",
+        nameClasses: "text-sm font-bold text-purple-800 dark:text-purple-200",
+        descClasses: "text-xs text-purple-600 dark:text-purple-300",
       };
     } else if (isDirectBorrow) {
       return {
         name: "Sepolia",
-        color: "indigo",
         description: "Direct borrow on Sepolia",
         icon: "⚡",
+        badgeClasses: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg border-2 border-indigo-300 dark:border-indigo-600",
+        nameClasses: "text-sm font-bold text-indigo-800 dark:text-indigo-200",
+        descClasses: "text-xs text-indigo-600 dark:text-indigo-300",
       };
     }
     return {
       name: "Unknown Network",
-      color: "gray",
       description: "Please switch to Sepolia or Arbitrum Sepolia",
       icon: "⚠️",
+      badgeClasses: "inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-900/20 rounded-lg border-2 border-gray-300 dark:border-gray-600",
+      nameClasses: "text-sm font-bold text-gray-800 dark:text-gray-200",
+      descClasses: "text-xs text-gray-600 dark:text-gray-300",
     };
   };
 
@@ -204,13 +222,13 @@ export default function BorrowPage() {
           <div className="mb-8 text-center">
             <h2 className="text-4xl font-bold mb-4">Borrow PYUSD</h2>
             {isConnected && (
-              <div className={`inline-flex items-center gap-2 px-4 py-2 bg-${networkInfo.color}-100 dark:bg-${networkInfo.color}-900/20 rounded-lg border-2 border-${networkInfo.color}-300 dark:border-${networkInfo.color}-600`}>
+              <div className={networkInfo.badgeClasses}>
                 <span className="text-lg">{networkInfo.icon}</span>
                 <div className="text-left">
-                  <p className={`text-sm font-bold text-${networkInfo.color}-800 dark:text-${networkInfo.color}-200`}>
+                  <p className={networkInfo.nameClasses}>
                     {networkInfo.name}
                   </p>
-                  <p className={`text-xs text-${networkInfo.color}-600 dark:text-${networkInfo.color}-300`}>
+                  <p className={networkInfo.descClasses}>
                     {networkInfo.description}
                   </p>
                 </div>
