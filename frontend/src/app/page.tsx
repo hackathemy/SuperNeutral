@@ -11,17 +11,17 @@ export default function Home() {
       <Header />
 
       <main className="container mx-auto px-4">
-        {/* Hero Section - 4.7x Emphasis */}
+        {/* Hero Section - 3.9x Emphasis */}
         <section className="py-16 text-center">
           <div className="inline-block mb-4 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full font-bold shadow-lg animate-pulse">
-            🏆 4.7x Higher Returns than Traditional Lending
+            🏆 3.9x Higher Returns than Traditional Lending
           </div>
 
           <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
             Borrow PYUSD with ETH Collateral
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Earn 16.3% APY
+              Earn 13.5% APY
             </span>
           </h2>
 
@@ -42,8 +42,8 @@ export default function Home() {
             </div>
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 px-8 py-6 rounded-xl shadow-2xl transform scale-110">
               <div className="text-sm text-indigo-100 mb-2">SuperNeutral</div>
-              <div className="text-4xl font-bold text-white">16.3% APY</div>
-              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 4.7x Higher Returns</div>
+              <div className="text-4xl font-bold text-white">13.5% APY</div>
+              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 3.9x Higher Returns</div>
             </div>
           </div>
         </section>
@@ -74,7 +74,7 @@ export default function Home() {
               icon="💰"
               title="Multi-Revenue Model"
               before="Single income stream"
-              after="4 income streams: Collateral (3.5%) + Lending (8%) + Flash Loans (0.8%) + Idle Funds (4%)"
+              after="4 income streams: Collateral (3.5%) + Lending (5.5%) + Flash Loans (0.5%) + Idle Funds (4%)"
               link="/supply"
             />
             <DifferentiatorCard
@@ -147,7 +147,7 @@ export default function Home() {
               href="/supply"
               className="px-10 py-5 bg-white dark:bg-gray-800 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 border-2 border-indigo-600 dark:border-indigo-400 rounded-xl font-bold text-lg hover:bg-indigo-50 dark:hover:bg-gray-700 transition shadow-xl hover:shadow-2xl transform hover:scale-105"
             >
-              💰 Supply and Earn 16.3%
+              💰 Supply and Earn 13.5%
             </Link>
             <Link
               href="/dashboard"
@@ -167,7 +167,7 @@ export default function Home() {
               SuperNeutral
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              4.7x Higher Returns than Traditional Lending | Sepolia Testnet | Powered by LIDO & Pyth Oracle
+              3.9x Higher Returns than Traditional Lending | Sepolia Testnet | Powered by LIDO & Pyth Oracle
             </p>
           </div>
 
