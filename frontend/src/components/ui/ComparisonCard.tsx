@@ -51,16 +51,16 @@ export default function ComparisonCard() {
 
         {/* SuperNeutral Side */}
         <div className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 relative">
-          {/* 4.7x Better Badge */}
+          {/* 3.9x Better Badge */}
           <div className="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg transform rotate-12 animate-pulse">
-            <div className="text-2xl font-bold">4.7x</div>
+            <div className="text-2xl font-bold">3.9x</div>
             <div className="text-xs">Higher Returns</div>
           </div>
 
           <div className="text-center mb-6">
             <div className="text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-2">Multi-Revenue Yield Structure</div>
             <h4 className="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-1">SuperNeutral</h4>
-            <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">16.3% APY</div>
+            <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">13.5% APY</div>
           </div>
 
           <div className="space-y-4">
@@ -70,11 +70,11 @@ export default function ComparisonCard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-700 dark:text-gray-300">Lending Interest</span>
-              <span className="font-semibold text-purple-600 dark:text-purple-400">8.0%</span>
+              <span className="font-semibold text-purple-600 dark:text-purple-400">5.5%</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-700 dark:text-gray-300">Flash Loan Revenue</span>
-              <span className="font-semibold text-pink-600 dark:text-pink-400">0.8%</span>
+              <span className="font-semibold text-pink-600 dark:text-pink-400">0.5%</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-700 dark:text-gray-300">Idle Funds Yield (sPYUSD)</span>
@@ -83,7 +83,7 @@ export default function ComparisonCard() {
             <div className="pt-4 border-t border-indigo-300 dark:border-indigo-600">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-gray-800 dark:text-gray-200">Total Yield</span>
-                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">16.3%</span>
+                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">13.5%</span>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function ComparisonCard() {
 
           <div className="mt-6">
             <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg">
-              🚀 Start Earning 21.5%
+              🚀 Start Earning 13.5%
             </button>
           </div>
         </div>
