@@ -125,8 +125,10 @@ export default function MyLoansPage() {
 
             console.log("Interest:", interest.toString());
 
-            // Health Factor is returned in 1e18 format (18 decimals)
-            // 1e18 = 1.0x, 12.26e18 = 12.26x
+            // Health Factor calculation issue:
+            // collateralValueUSD is 18 decimals, debtValueUSD is 6 decimals (PYUSD)
+            // This causes 1e12 difference in the result
+            // So we need to divide by 1e30 (1e18 * 1e12) instead of just 1e18
             let healthFactor: string;
 
             const MAX_UINT256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -135,8 +137,8 @@ export default function MyLoansPage() {
             if (healthFactorRaw === MAX_UINT256) {
               healthFactor = "∞"; // Infinite - no debt
             } else {
-              // Convert from 1e18 to decimal (1e18 = 1.0x)
-              const healthFactorNum = Number(healthFactorRaw) / 1e18;
+              // Convert from 1e30 to decimal (accounting for decimals mismatch)
+              const healthFactorNum = Number(healthFactorRaw) / 1e30;
               healthFactor = healthFactorNum.toFixed(2);
             }
 
