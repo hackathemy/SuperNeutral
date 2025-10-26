@@ -2,7 +2,7 @@
 
 A decentralized lending protocol that allows users to borrow PYUSD stablecoin using ETH as collateral, with automatic yield generation through LIDO staking.
 
-#### [Demo]() | [Demo Video]() | [Pitchdeck](https://www.figma.com/deck/mHroCpTInQ4ewK8IOBOO0G)
+#### [Demo](https://super-neutral.vercel.app/) | [Pitchdeck](https://www.figma.com/deck/mHroCpTInQ4ewK8IOBOO0G)
 
 ## 🌟 Features
 
