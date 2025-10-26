@@ -11,17 +11,17 @@ export default function Home() {
       <Header />
 
       <main className="container mx-auto px-4">
-        {/* Hero Section - 2.7x Emphasis */}
+        {/* Hero Section - 4.7x Emphasis */}
         <section className="py-16 text-center">
           <div className="inline-block mb-4 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full font-bold shadow-lg animate-pulse">
-            🏆 2.7x Higher Returns than Traditional Lending
+            🏆 4.7x Higher Returns than Traditional Lending
           </div>
 
           <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
             Borrow PYUSD with ETH Collateral
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Earn 21.5% APY
+              Earn 16.3% APY
             </span>
           </h2>
 
@@ -35,15 +35,15 @@ export default function Home() {
           <div className="flex justify-center gap-8 mb-16">
             <div className="bg-gray-100 dark:bg-gray-800 px-8 py-6 rounded-xl shadow-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Traditional Lending (like Aave)</div>
-              <div className="text-4xl font-bold text-gray-600 dark:text-gray-400">8% APY</div>
+              <div className="text-4xl font-bold text-gray-600 dark:text-gray-400">3.5% APY</div>
             </div>
             <div className="flex items-center">
               <div className="text-3xl font-bold text-gray-400">→</div>
             </div>
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 px-8 py-6 rounded-xl shadow-2xl transform scale-110">
               <div className="text-sm text-indigo-100 mb-2">SuperNeutral</div>
-              <div className="text-4xl font-bold text-white">21.5% APY</div>
-              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 2.7x Higher Returns</div>
+              <div className="text-4xl font-bold text-white">16.3% APY</div>
+              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 4.7x Higher Returns</div>
             </div>
           </div>
         </section>
@@ -74,7 +74,7 @@ export default function Home() {
               icon="💰"
               title="Multi-Revenue Model"
               before="Single income stream"
-              after="4 income streams: Collateral (7%) + Lending (12%) + Flash Loans (1.6%) + Idle Funds (0.9%)"
+              after="4 income streams: Collateral (3.5%) + Lending (8%) + Flash Loans (0.8%) + Idle Funds (4%)"
               link="/supply"
             />
             <DifferentiatorCard
@@ -147,7 +147,7 @@ export default function Home() {
               href="/supply"
               className="px-10 py-5 bg-white dark:bg-gray-800 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 border-2 border-indigo-600 dark:border-indigo-400 rounded-xl font-bold text-lg hover:bg-indigo-50 dark:hover:bg-gray-700 transition shadow-xl hover:shadow-2xl transform hover:scale-105"
             >
-              💰 Supply and Earn 21.5%
+              💰 Supply and Earn 16.3%
             </Link>
             <Link
               href="/dashboard"
@@ -167,7 +167,7 @@ export default function Home() {
               SuperNeutral
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              2.7x Higher Returns than Traditional Lending | Sepolia Testnet | Powered by LIDO & Pyth Oracle
+              4.7x Higher Returns than Traditional Lending | Sepolia Testnet | Powered by LIDO & Pyth Oracle
             </p>
           </div>
 
