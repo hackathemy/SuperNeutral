@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Link from "next/link";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseEther, formatEther, parseUnits } from "viem";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
+import { parseEther, formatEther, parseUnits, formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { EthereumLendingPoolABI } from "@/lib/abis/EthereumLendingPool";
 import { EthereumLoanNFTABI } from "@/lib/abis/EthereumLoanNFT";
 import { PYUSDABI } from "@/lib/abis/PYUSD";
+import { blockscoutAPI } from "@/lib/blockscout";
 
 interface LoanData {
   tokenId: bigint;
@@ -16,6 +17,7 @@ interface LoanData {
   debt: bigint;
   liquidationRatio: bigint;
   healthFactor: string;
+  interest: bigint;
 }
 
 export default function MyLoansPage() {
@@ -27,14 +29,7 @@ export default function MyLoansPage() {
 
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
-
-  // Get user's loan IDs from LendingPool
-  const { data: userLoanIds } = useReadContract({
-    address: CONTRACTS.LendingPool,
-    abi: EthereumLendingPoolABI,
-    functionName: "userLoanIds",
-    args: address ? [address] : undefined,
-  });
+  const publicClient = usePublicClient();
 
   // Get ETH price
   const { data: ethPrice } = useReadContract({
@@ -43,43 +38,106 @@ export default function MyLoansPage() {
     functionName: "getETHPrice",
   });
 
-  // Fetch loan details from contract
+  // Fetch user's NFTs and loan details
   useEffect(() => {
-    if (!address || !userLoanIds || userLoanIds.length === 0) {
+    if (!address || !publicClient) {
       setLoans([]);
       return;
     }
 
     const fetchLoans = async () => {
       try {
+        // Get user's NFT transfers from Blockscout (to find which NFTs they own)
+        const transfersResponse = await blockscoutAPI.getAddressTokenTransfers(
+          address,
+          {
+            type: "ERC-721",
+            token: CONTRACTS.LoanNFT,
+          }
+        );
+
+        if (!transfersResponse.items || transfersResponse.items.length === 0) {
+          setLoans([]);
+          return;
+        }
+
+        // Extract unique token IDs where user is current owner
+        const ownedTokenIds = new Set<string>();
+
+        // Process transfers to find currently owned tokens
+        for (const transfer of transfersResponse.items) {
+          const tokenId = transfer.total?.token_id;
+          if (!tokenId) continue;
+
+          // If user received this token, add it
+          if (transfer.to.hash.toLowerCase() === address.toLowerCase()) {
+            ownedTokenIds.add(tokenId);
+          }
+          // If user sent this token, remove it
+          if (transfer.from.hash.toLowerCase() === address.toLowerCase()) {
+            ownedTokenIds.delete(tokenId);
+          }
+        }
+
+        if (ownedTokenIds.size === 0) {
+          setLoans([]);
+          return;
+        }
+
         const loanData: LoanData[] = [];
 
-        // Fetch loan details for each tokenId
-        for (const tokenId of userLoanIds) {
+        // Fetch loan details for each owned NFT
+        for (const tokenIdStr of ownedTokenIds) {
           try {
-            // Use wagmi's readContract to get loan data
-            const response = await fetch(`/api/get-loan?tokenId=${tokenId}`);
-            if (!response.ok) continue;
+            const tokenId = BigInt(tokenIdStr);
 
-            const loan = await response.json();
+            // Get loan info from contract
+            const loanInfo = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "getLoan",
+              args: [tokenId],
+            }) as any;
 
-            // Calculate health factor
-            let healthFactor = "0";
-            if (ethPrice && loan.collateral > 0 && loan.debt > 0) {
-              const collateralValue = (BigInt(loan.collateral) * BigInt(ethPrice)) / BigInt(10 ** 18);
-              const maxBorrow = (collateralValue * BigInt(loan.liquidationRatio)) / BigInt(100) / BigInt(10 ** 12);
-              healthFactor = (Number(maxBorrow) / (Number(loan.debt) / 10 ** 6)).toFixed(2);
-            }
+            console.log("Loan Info:", {
+              collateral: loanInfo.collateralAmount?.toString(),
+              debt: loanInfo.borrowAmount?.toString(),
+              tokenId: tokenId.toString(),
+            });
+
+            // Get health factor from contract
+            const healthFactorRaw = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "getHealthFactor",
+              args: [tokenId],
+            }) as bigint;
+
+            console.log("Health Factor:", healthFactorRaw.toString());
+
+            // Get accumulated interest from contract
+            const interest = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "calculateInterest",
+              args: [tokenId],
+            }) as bigint;
+
+            console.log("Interest:", interest.toString());
+
+            // Convert health factor from basis points (e.g., 15000 = 1.5x)
+            const healthFactor = (Number(healthFactorRaw) / 10000).toFixed(2);
 
             loanData.push({
-              tokenId: BigInt(tokenId),
-              collateral: BigInt(loan.collateral),
-              debt: BigInt(loan.debt),
-              liquidationRatio: BigInt(loan.liquidationRatio),
+              tokenId,
+              collateral: loanInfo.collateralAmount,
+              debt: loanInfo.borrowAmount,
+              liquidationRatio: loanInfo.liquidationRatio,
               healthFactor,
+              interest,
             });
           } catch (error) {
-            console.error(`Failed to fetch loan ${tokenId}:`, error);
+            console.error(`Failed to fetch loan ${tokenIdStr}:`, error);
           }
         }
 
@@ -91,7 +149,7 @@ export default function MyLoansPage() {
     };
 
     fetchLoans();
-  }, [address, userLoanIds, ethPrice]);
+  }, [address, publicClient]);
 
   const handleRepay = async () => {
     if (!selectedLoan || !repayAmount) return;
@@ -185,7 +243,7 @@ export default function MyLoansPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Active Loans</p>
                   <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {userLoanIds ? userLoanIds.length : "0"}
+                    {loans.length}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
@@ -203,7 +261,7 @@ export default function MyLoansPage() {
               </div>
 
               {/* Loan Cards */}
-              {!userLoanIds || userLoanIds.length === 0 ? (
+              {loans.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center border border-gray-200 dark:border-gray-700">
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
                     No Active Loan Positions
@@ -227,7 +285,7 @@ export default function MyLoansPage() {
                           <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
                             Loan Position #{loan.tokenId.toString()}
                           </h3>
-                          <div className="flex gap-4">
+                          <div className="grid grid-cols-3 gap-4">
                             <div>
                               <p className="text-sm text-gray-500 dark:text-gray-400">Collateral</p>
                               <p className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -237,7 +295,13 @@ export default function MyLoansPage() {
                             <div>
                               <p className="text-sm text-gray-500 dark:text-gray-400">Debt</p>
                               <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                                {(Number(loan.debt) / 10 ** 6).toFixed(2)} PYUSD
+                                {formatUnits(loan.debt, 6)} PYUSD
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Interest</p>
+                              <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                                {formatUnits(loan.interest, 6)} PYUSD
                               </p>
                             </div>
                           </div>
