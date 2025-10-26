@@ -12,7 +12,15 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
             ETH Lending Protocol
           </h1>
-          <ConnectButton />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+            >
+              📊 Dashboard
+            </Link>
+            <ConnectButton />
+          </div>
         </div>
       </header>
 
@@ -28,7 +36,7 @@ export default function Home() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           <FeatureCard
             title="🏦 Borrow PYUSD"
             description="Use your ETH as collateral to borrow PYUSD. Supports both Sepolia (direct) and Arbitrum Sepolia (cross-chain via Avail Nexus)"
@@ -44,6 +52,11 @@ export default function Home() {
             description="Supply PYUSD and receive sPYUSD tokens that automatically increase in value as borrowers pay interest"
             link="/supply"
           />
+          <FeatureCard
+            title="📊 Analytics Dashboard"
+            description="View real-time protocol analytics, your portfolio, and event logs powered by Blockscout"
+            link="/dashboard"
+          />
         </div>
 
         {/* Stats */}
@@ -58,7 +71,7 @@ export default function Home() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex justify-center gap-4 mt-12">
+        <div className="flex flex-wrap justify-center gap-4 mt-12">
           <Link
             href="/borrow"
             className="px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
@@ -70,6 +83,12 @@ export default function Home() {
             className="px-8 py-4 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-lg font-semibold hover:bg-indigo-50 dark:hover:bg-gray-700 transition"
           >
             Supply Liquidity
+          </Link>
+          <Link
+            href="/dashboard"
+            className="px-8 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+          >
+            📊 View Analytics
           </Link>
         </div>
       </main>
