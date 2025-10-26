@@ -145,7 +145,7 @@ export default function SupplyPage() {
 
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">공급하기: PYUSD 공급 & sPYUSD 획득</h2>
+          <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Supply PYUSD, Earn sPYUSD</h2>
 
           {/* Exchange Rate Info */}
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl p-6 mb-8">
@@ -219,7 +219,7 @@ export default function SupplyPage() {
             {!isConnected ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  지갑을 연결하여 PYUSD를 공급하세요
+                  Connect your wallet to supply PYUSD
                 </p>
                 <w3m-button />
               </div>
@@ -273,7 +273,7 @@ export default function SupplyPage() {
                         : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    공급하기
+                    Supply
                   </button>
                   <button
                     onClick={() => setActiveTab("withdraw")}
@@ -283,7 +283,7 @@ export default function SupplyPage() {
                         : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    출금하기
+                    Withdraw
                   </button>
                 </div>
 
@@ -306,7 +306,7 @@ export default function SupplyPage() {
                         onClick={() => setSupplyAmount(pyusdBalance ? formatUnits(pyusdBalance, 6) : "0")}
                         className="text-sm text-indigo-600 dark:text-indigo-400 mt-1 hover:underline"
                       >
-                        Use Max
+                        Max
                       </button>
                     </div>
 
@@ -330,7 +330,7 @@ export default function SupplyPage() {
                       disabled={!supplyAmount || isPending || isConfirming}
                       className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                     >
-                      {isPending ? "승인 중..." : isConfirming ? "처리 중..." : "PYUSD 공급하기"}
+                      {isPending ? "Approving..." : isConfirming ? "Processing..." : "PYUSD Supply"}
                     </button>
 
                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -384,7 +384,7 @@ export default function SupplyPage() {
                       disabled={!withdrawAmount || isPending || isConfirming}
                       className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                     >
-                      {isPending ? "승인 중..." : isConfirming ? "처리 중..." : "PYUSD 출금하기"}
+                      {isPending ? "Approving..." : isConfirming ? "Processing..." : "PYUSD Withdraw"}
                     </button>
 
                     <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
@@ -408,9 +408,9 @@ export default function SupplyPage() {
 
           {/* Get PYUSD for Testing */}
           <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">테스트용 PYUSD가 필요하신가요?</h3>
+            <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Need PYUSD for testing?</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Sepolia 테스트넷에서 사용할 PYUSD를 무료로 받으세요
+              Get free PYUSD for use on Sepolia testnet
             </p>
             <a
               href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd"
@@ -418,7 +418,7 @@ export default function SupplyPage() {
               rel="noopener noreferrer"
               className="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-lg"
             >
-              PYUSD 받기 →
+              Get PYUSD →
             </a>
           </div>
         </div>

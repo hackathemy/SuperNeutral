@@ -66,16 +66,19 @@ export default function BorrowPage() {
 
   // Calculate max borrow amount based on collateral and liquidation ratio
   const calculateMaxBorrow = () => {
-    if (!collateral || !ethPrice) return "0";
+    if (!collateral || !ethPrice || parseFloat(collateral) <= 0) return "0.00";
     try {
       const collateralWei = parseEther(collateral); // 18 decimals
-      // Calculate collateral value in USD (with 8 decimals from Pyth)
-      const collateralUSD = (collateralWei * ethPrice) / BigInt(10 ** 18); // Now has 8 decimals
+      // Calculate collateral value in USD (ethPrice has 18 decimals)
+      const collateralUSD = (collateralWei * ethPrice) / BigInt(10 ** 18); // Still has 18 decimals
       // Convert to PYUSD units (6 decimals) and apply liquidation ratio
-      const maxBorrowPYUSD = (collateralUSD * BigInt(liquidationRatio)) / BigInt(100) / BigInt(10 ** 2); // Divide by 10^2 to go from 8 to 6 decimals
-      return formatUnits(maxBorrowPYUSD, 6);
-    } catch {
-      return "0";
+      const maxBorrowPYUSD = (collateralUSD * BigInt(liquidationRatio)) / BigInt(100) / BigInt(10 ** 12); // Divide by 10^12 to go from 18 to 6 decimals
+      const result = parseFloat(formatUnits(maxBorrowPYUSD, 6));
+      // Format with commas and 2 decimal places
+      return result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } catch (error) {
+      console.error("Max borrow calculation error:", error);
+      return "0.00";
     }
   };
 
@@ -225,14 +228,14 @@ export default function BorrowPage() {
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">빌리기: PYUSD 대출</h2>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Borrow: Get PYUSD Loan</h2>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             {!isConnected ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  지갑을 연결하여 PYUSD를 대출하세요
+                  Connect your wallet to borrow PYUSD
                 </p>
                 <w3m-button />
               </div>
@@ -254,10 +257,10 @@ export default function BorrowPage() {
                 {isCrossChain && (
                   <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
                     <h3 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">
-                      🌉 크로스체인 대출 활성화
+                      🌉 Cross-Chain Borrow 활성화
                     </h3>
                     <p className="text-sm text-purple-600 dark:text-purple-300 mb-2">
-                      ETH가 Arbitrum Sepolia에서 Sepolia로 브릿지되고, 자동으로 PYUSD를 대출합니다.
+                      ETH가 (from Arbitrum Sepolia) Sepolia로 브릿지되고, 자동으로 PYUSD를 대출합니다.
                     </p>
                     <div className="flex items-center justify-between text-sm mt-2 text-purple-700 dark:text-purple-300">
                       <div>
@@ -274,7 +277,7 @@ export default function BorrowPage() {
                 {/* Collateral Input */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                    ETH 담보 {isCrossChain && "(Arbitrum Sepolia에서)"}
+                    ETH Collateral {isCrossChain && "((from Arbitrum Sepolia))"}
                   </label>
                   <input
                     type="number"
@@ -285,14 +288,14 @@ export default function BorrowPage() {
                     step="0.01"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    ETH 가격: ${ethPrice ? Number(formatUnits(ethPrice, 18)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "로딩 중..."}
+                    ETH Price: ${ethPrice ? Number(formatUnits(ethPrice, 18)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "Loading..."}
                   </p>
                 </div>
 
                 {/* Liquidation Ratio Slider */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                    청산 비율: {liquidationRatio}%
+                    Liquidation Ratio: {liquidationRatio}%
                   </label>
                   <input
                     type="range"
@@ -303,15 +306,15 @@ export default function BorrowPage() {
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                   />
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    <span>50% (안전)</span>
-                    <span>80% (위험)</span>
+                    <span>50% (Safe)</span>
+                    <span>80% (Danger)</span>
                   </div>
                 </div>
 
                 {/* Short Ratio Slider */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                    숏 포지션 비율: {shortRatio}%
+                    Short Position Ratio: {shortRatio}%
                   </label>
                   <input
                     type="range"
@@ -323,14 +326,14 @@ export default function BorrowPage() {
                   />
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>0% (숏 없음)</span>
-                    <span>30% (최대 숏)</span>
+                    <span>30% (Max Short)</span>
                   </div>
                 </div>
 
                 {/* Borrow Amount */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                    대출 금액 (PYUSD, Sepolia에서 수령)
+                    Borrow Amount (PYUSD)
                   </label>
                   <input
                     type="number"
@@ -341,13 +344,13 @@ export default function BorrowPage() {
                     step="0.01"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    최대 대출: {maxBorrow} PYUSD
+                    Max Borrow: {maxBorrow} PYUSD
                   </p>
                   <button
                     onClick={() => setBorrowAmount(maxBorrow)}
                     className="text-sm text-indigo-600 dark:text-indigo-400 mt-1 hover:underline"
                   >
-                    최대값 사용
+                    Max
                   </button>
                 </div>
 
@@ -355,7 +358,7 @@ export default function BorrowPage() {
                 <div className="bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-4 mb-6 border border-gray-200 dark:border-gray-600">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">건강도</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Health Factor</p>
                       <p className={`text-2xl font-bold ${
                         parseFloat(healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
                         parseFloat(healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
@@ -364,7 +367,7 @@ export default function BorrowPage() {
                         {healthFactor}x
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {parseFloat(healthFactor) >= 1.5 ? "안전" : parseFloat(healthFactor) >= 1.2 ? "주의" : "위험"}
+                        {parseFloat(healthFactor) >= 1.5 ? "Safe" : parseFloat(healthFactor) >= 1.2 ? "Warning" : "Danger"}
                       </p>
                     </div>
                     <div>
@@ -411,17 +414,17 @@ export default function BorrowPage() {
                     : isPending || isProcessing
                       ? "승인 중..."
                       : isConfirming
-                        ? "처리 중..."
+                        ? "Processing..."
                         : isCrossChain
                           ? "ETH 브릿지 & PYUSD 대출"
-                          : "PYUSD 대출하기"}
+                          : "Borrow PYUSD"}
                 </button>
 
                 {/* Success Display */}
                 {(isSuccess || txHash) && (
                   <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-green-800 dark:text-green-200 mb-2">
-                      ✅ {isCrossChain ? "크로스체인 대출" : "대출"} 성공!
+                      ✅ {isCrossChain ? "Cross-Chain Borrow" : "대출"} 성공!
                     </p>
                     {txHash && (
                       <>

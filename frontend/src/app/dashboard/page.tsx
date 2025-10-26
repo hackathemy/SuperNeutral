@@ -23,15 +23,15 @@ export default function DashboardPage() {
       <Header />
 
       {/* Page Header */}
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                분석 대시보드
+                Analytics Dashboard
               </h1>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Blockscout 기반 실시간 온체인 분석
+                Real-time on-chain analytics powered by Blockscout
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -41,7 +41,7 @@ export default function DashboardPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition shadow-md"
               >
-                <span>Blockscout에서 보기</span>
+                <span>View on Blockscout</span>
                 <svg
                   className="w-4 h-4"
                   fill="none"
@@ -187,7 +187,7 @@ export default function DashboardPage() {
             {/* Portfolio Guide */}
             <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30 p-6">
               <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-100 mb-3">
-                📚 포트폴리오 사용 가이드
+                📚 Portfolio Usage Guide
               </h3>
               <ul className="space-y-2 text-sm text-indigo-800 dark:text-indigo-200">
                 <li className="flex items-start gap-2">
