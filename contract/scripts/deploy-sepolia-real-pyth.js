@@ -88,17 +88,41 @@ async function main() {
         const spyusdAddress = await stakedPYUSD.getAddress();
         console.log("✅ StakedPYUSD deployed to:", spyusdAddress);
 
-        // 6. Deploy EthereumLendingPool with REAL Pyth Oracle
-        console.log("\n6️⃣ Deploying EthereumLendingPool with REAL Pyth Oracle...");
+        // 6. Deploy VaultRouter
+        console.log("\n6️⃣ Deploying VaultRouter...");
+        const vaultRouterArtifact = JSON.parse(
+            readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/core/VaultRouter.sol/VaultRouter.json"), "utf8")
+        );
+        const vaultRouterFactory = new ethers.ContractFactory(vaultRouterArtifact.abi, vaultRouterArtifact.bytecode, signer);
+        const vaultRouter = await vaultRouterFactory.deploy(0); // 0 = Strategy.AAVE_V3
+        await vaultRouter.waitForDeployment();
+        const vaultRouterAddress = await vaultRouter.getAddress();
+        console.log("✅ VaultRouter deployed to:", vaultRouterAddress);
+
+        // 7. Deploy ShortPositionRouter (not used in testnet but required for constructor)
+        console.log("\n7️⃣ Deploying ShortPositionRouter...");
+        console.log("   ⚠️  NOTE: Short position disabled in testnet due to liquidity constraints");
+        const shortRouterArtifact = JSON.parse(
+            readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/core/ShortPositionRouter.sol/ShortPositionRouter.json"), "utf8")
+        );
+        const shortRouterFactory = new ethers.ContractFactory(shortRouterArtifact.abi, shortRouterArtifact.bytecode, signer);
+        const shortRouter = await shortRouterFactory.deploy();
+        await shortRouter.waitForDeployment();
+        const shortRouterAddress = await shortRouter.getAddress();
+        console.log("✅ ShortPositionRouter deployed to:", shortRouterAddress);
+
+        // 8. Deploy EthereumLendingPool with REAL Pyth Oracle
+        console.log("\n8️⃣ Deploying EthereumLendingPool with REAL Pyth Oracle...");
         console.log("   Using Pyth Oracle:", REAL_PYTH_ORACLE);
         const poolArtifact = JSON.parse(
             readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json"), "utf8")
         );
         const poolFactory = new ethers.ContractFactory(poolArtifact.abi, poolArtifact.bytecode, signer);
         const lendingPool = await poolFactory.deploy(
-            pyusdAddress,        // Mock PYUSD
+            pyusdAddress,        // PYUSD
             nftAddress,          // Loan NFT
-            vaultAddress,        // Mock Vault
+            vaultRouterAddress,  // VaultRouter
+            shortRouterAddress,  // ShortPositionRouter (not used in testnet)
             REAL_PYTH_ORACLE,    // REAL Pyth Oracle
             spyusdAddress        // Staked PYUSD
         );
@@ -106,8 +130,8 @@ async function main() {
         const poolAddress = await lendingPool.getAddress();
         console.log("✅ EthereumLendingPool deployed to:", poolAddress);
 
-        // 7. Configure access control
-        console.log("\n🔧 Configuring access control...");
+        // 9. Configure access control and routing
+        console.log("\n🔧 Configuring access control and routing...");
 
         // Grant MINTER_ROLE to lending pool for NFT
         const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("MINTER_ROLE"));
@@ -115,10 +139,20 @@ async function main() {
         await grantTx.wait();
         console.log("✅ Granted MINTER_ROLE to lending pool");
 
-        // Authorize lending pool in vault
-        const authTx = await stETHVault.setAuthorizedCaller(poolAddress, true);
-        await authTx.wait();
-        console.log("✅ Authorized lending pool in vault");
+        // Register vault in VaultRouter
+        const registerTx = await vaultRouter.registerVault(0, vaultAddress); // 0 = Strategy.AAVE_V3
+        await registerTx.wait();
+        console.log("✅ Registered vault in VaultRouter");
+
+        // Authorize VaultRouter in vault
+        const authVaultTx = await stETHVault.setAuthorizedCaller(vaultRouterAddress, true);
+        await authVaultTx.wait();
+        console.log("✅ Authorized VaultRouter in vault");
+
+        // Authorize lending pool in VaultRouter
+        const authPoolTx = await vaultRouter.setAuthorizedCaller(poolAddress, true);
+        await authPoolTx.wait();
+        console.log("✅ Authorized lending pool in VaultRouter");
 
         // Set lending pool address in StakedPYUSD
         const setPoolTx = await stakedPYUSD.setLendingPool(poolAddress);

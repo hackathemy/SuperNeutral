@@ -18,6 +18,14 @@ export default {
       type: "edr-simulated",
       chainId: 31337
     },
+    mainnetFork: {
+      type: "edr-simulated",
+      chainId: 1,
+      forking: {
+        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`,
+        blockNumber: 20000000 // Pin to specific block for consistency
+      }
+    },
     sepolia: {
       type: "http",
       url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`,

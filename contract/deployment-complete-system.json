@@ -1,0 +1,26 @@
+{
+  "network": "sepolia",
+  "timestamp": "2025-10-26T11:31:14.052Z",
+  "deployer": "0x2FCCba2f198066c5Ea3e414dD50F78E25c3aF552",
+  "contracts": {
+    "AaveV3Vault": "0xD701e1dfc4c9b762D4f6640a927ff7F3Daaaad7b",
+    "MockRocketPoolVault": "0xDbAa0516340B468D2Bb5e642519e76e3fc609e78",
+    "MockStETHVault": "0x8E51247E01227F45a35c0FC6E201853B6CB30615",
+    "VaultRouter": "0x33072147860e1c2396D22Fe8fbB25A140D1Ba758",
+    "AaveUniswapShort": "0xaE4698163AE78b82E82fC4F1dcF3466E87CE1601",
+    "ShortPositionRouter": "0xcc8bc91cF5C18EF1d6d5013e19fc656443ACF8CA",
+    "PYUSD": "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9",
+    "EthereumLoanNFT": "0x3018cc163f8B4b6785a6783f72f1A291a0f2C709",
+    "StakedPYUSD": "0x014101c29669b32AF822F25b90717B3bE9bAA303",
+    "EthereumLendingPool": "0x5Fc62Dab41eFd6E5cC7b4Df4B8d850fda8cc67eD"
+  },
+  "addresses": {
+    "aave": {
+      "pool": "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+      "weth": "0xC558DBdd856501FCd9aaF1E62eae57A9F0629a3c",
+      "aWETH": "0x5b071b590a59395fE4025A0Ccc1FcC931AAc1830"
+    },
+    "pythOracle": "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21",
+    "officialPYUSD": "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9"
+  }
+}

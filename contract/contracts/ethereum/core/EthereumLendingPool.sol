@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/ILendingPool.sol";
 import "../interfaces/ILoanNFT.sol";
 import "../interfaces/IStETHVault.sol";
+import "../interfaces/IShortPosition.sol";
 import "../interfaces/IERC3156FlashLender.sol";
 import "../interfaces/IERC3156FlashBorrower.sol";
 import "../libraries/LendingMath.sol";
@@ -55,7 +56,8 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
     // Contract references
     IERC20 public immutable PYUSD;
     ILoanNFT public immutable loanNFT;
-    IStETHVault public immutable stETHVault;
+    IStETHVault public immutable vaultRouter;      // VaultRouter (implements IStETHVault)
+    IShortPosition public immutable shortPositionRouter;
     IPyth public immutable pythOracle;
     StakedPYUSD public immutable stakedPYUSD;
 
@@ -81,19 +83,22 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
     constructor(
         address _pyusd,
         address _loanNFT,
-        address _stETHVault,
+        address _vaultRouter,
+        address _shortPositionRouter,
         address _pythOracle,
         address _stakedPYUSD
     ) Ownable(msg.sender) {
         require(_pyusd != address(0), "Invalid PYUSD address");
         require(_loanNFT != address(0), "Invalid NFT address");
-        require(_stETHVault != address(0), "Invalid vault address");
+        require(_vaultRouter != address(0), "Invalid vault router address");
+        require(_shortPositionRouter != address(0), "Invalid short position router address");
         require(_pythOracle != address(0), "Invalid oracle address");
         require(_stakedPYUSD != address(0), "Invalid sPYUSD address");
 
         PYUSD = IERC20(_pyusd);
         loanNFT = ILoanNFT(_loanNFT);
-        stETHVault = IStETHVault(_stETHVault);
+        vaultRouter = IStETHVault(_vaultRouter);
+        shortPositionRouter = IShortPosition(_shortPositionRouter);
         pythOracle = IPyth(_pythOracle);
         stakedPYUSD = StakedPYUSD(_stakedPYUSD);
     }
@@ -184,6 +189,24 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
         // Check available liquidity
         require(totalPYUSDSupplied - totalPYUSDBorrowed >= pyusdAmount, "Insufficient liquidity");
 
+        // Calculate long and short amounts
+        uint256 longAmount = (msg.value * (BASIS_POINTS - shortRatio)) / BASIS_POINTS;
+        uint256 shortAmount = (msg.value * shortRatio) / BASIS_POINTS;
+
+        // ⚠️ TESTNET TEMPORARY: Short position disabled due to liquidity constraints
+        // TODO: Enable short position functionality on mainnet deployment
+        // Open short position if shortRatio > 0
+        uint256 shortPosId = 0;
+        // DISABLED FOR TESTNET - Uncomment for mainnet:
+        // if (shortRatio > 0 && shortAmount > 0) {
+        //     // Use 2x leverage for conservative short position
+        //     shortPosId = shortPositionRouter.openShort{value: shortAmount}(
+        //         shortAmount,
+        //         2, // 2x leverage
+        //         0  // No min output (accept market price)
+        //     );
+        // }
+
         // Create loan
         tokenId = nextTokenId++;
         loans[tokenId] = Loan({
@@ -192,6 +215,7 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
             borrowAmount: pyusdAmount,
             liquidationRatio: liquidationRatio,
             shortPositionRatio: shortRatio,
+            shortPositionId: shortPosId,
             borrowTimestamp: block.timestamp,
             accruedInterest: 0,
             isActive: true
@@ -215,8 +239,10 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
         totalETHCollateral += msg.value;
         totalPYUSDBorrowed += pyusdAmount;
 
-        // Deposit ETH to stETH vault
-        stETHVault.depositETH{value: msg.value}();
+        // Deposit long amount to vault router
+        if (longAmount > 0) {
+            vaultRouter.depositETH{value: longAmount}();
+        }
 
         // Transfer PYUSD to borrower
         PYUSD.safeTransfer(borrower, pyusdAmount);
@@ -262,15 +288,37 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
         loan.isActive = false;
         loan.accruedInterest = interest;
 
-        // Withdraw collateral from vault
-        uint256 ethToReturn = stETHVault.withdrawETH(loan.collateralAmount);
+        // Track contract balance before operations
+        uint256 balanceBefore = address(this).balance;
+
+        // ⚠️ TESTNET TEMPORARY: Short position disabled due to liquidity constraints
+        // TODO: Enable short position functionality on mainnet deployment
+        // Close short position if it exists
+        // DISABLED FOR TESTNET - Uncomment for mainnet:
+        // if (loan.shortPositionId > 0) {
+        //     shortPositionRouter.closeShort(loan.shortPositionId);
+        //     // Short position profits/losses are received as ETH
+        //     // The closeShort function returns ETH to this contract
+        // }
+
+        // Withdraw long collateral from vault
+        uint256 longAmount = (loan.collateralAmount * (BASIS_POINTS - loan.shortPositionRatio)) / BASIS_POINTS;
+        if (longAmount > 0) {
+            vaultRouter.withdrawETH(longAmount);
+            // Vault returns ETH to this contract
+        }
+
+        // Calculate total ETH received (all operations return ETH to this contract)
+        uint256 totalETHReturned = address(this).balance - balanceBefore;
 
         // Burn NFT
         loanNFT.burn(tokenId);
 
-        // Return collateral to borrower
-        (bool success, ) = msg.sender.call{value: ethToReturn}("");
-        require(success, "ETH transfer failed");
+        // Return all collateral to borrower
+        if (totalETHReturned > 0) {
+            (bool success, ) = msg.sender.call{value: totalETHReturned}("");
+            require(success, "ETH transfer failed");
+        }
 
         emit Repaid(tokenId, totalRepayment);
     }
@@ -290,8 +338,8 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
         loan.collateralAmount += msg.value;
         totalETHCollateral += msg.value;
 
-        // Deposit additional ETH to vault
-        stETHVault.depositETH{value: msg.value}();
+        // Deposit additional ETH to vault router (as long position)
+        vaultRouter.depositETH{value: msg.value}();
 
         emit CollateralAdded(tokenId, msg.value);
     }
@@ -324,8 +372,26 @@ contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGua
         // Get current NFT owner
         address nftOwner = loanNFT.ownerOf(tokenId);
 
-        // Withdraw collateral from vault
-        uint256 ethFromVault = stETHVault.withdrawETH(collateralAmount);
+        // ⚠️ TESTNET TEMPORARY: Short position disabled due to liquidity constraints
+        // TODO: Enable short position functionality on mainnet deployment
+        // Close short position if it exists
+        uint256 totalETHFromPositions = 0;
+        // DISABLED FOR TESTNET - Uncomment for mainnet:
+        // if (loan.shortPositionId > 0) {
+        //     shortPositionRouter.closeShort(loan.shortPositionId);
+        //     // Short ETH is already in this contract
+        // }
+
+        // Withdraw long collateral from vault
+        uint256 longAmount = (collateralAmount * (BASIS_POINTS - loan.shortPositionRatio)) / BASIS_POINTS;
+        if (longAmount > 0) {
+            uint256 ethFromLongVault = vaultRouter.withdrawETH(longAmount);
+            totalETHFromPositions += ethFromLongVault;
+        }
+
+        // Add short position ETH
+        totalETHFromPositions += address(this).balance;
+        uint256 ethFromVault = totalETHFromPositions;
 
         // Calculate liquidation amounts with bonus
         uint256 ethPrice = getETHPrice();
