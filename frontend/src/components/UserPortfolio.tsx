@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, usePublicClient } from "wagmi";
 import { formatUnits } from "viem";
 import { blockscoutAPI, BlockscoutTransaction } from "@/lib/blockscout";
 import { CONTRACTS, EXPLORER_URLS, FAUCETS } from "@/config/contracts";
+import { EthereumLendingPoolABI } from "@/lib/abis/EthereumLendingPool";
 
 // ABIs
 const ERC20_ABI = [
@@ -78,6 +79,8 @@ interface LoanPosition {
   liquidationRatio: number;
   shortRatio: number;
   timestamp: bigint;
+  interest: bigint;
+  healthFactor: string;
 }
 
 export default function UserPortfolio() {
@@ -85,6 +88,7 @@ export default function UserPortfolio() {
   const [loanPositions, setLoanPositions] = useState<LoanPosition[]>([]);
   const [recentTxs, setRecentTxs] = useState<BlockscoutTransaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const publicClient = usePublicClient();
 
   // Read PYUSD balance
   const { data: pyusdBalance } = useReadContract({
@@ -109,45 +113,134 @@ export default function UserPortfolio() {
     functionName: "exchangeRate",
   });
 
-  // Read loan NFT count
-  const { data: loanNftCount } = useReadContract({
-    address: CONTRACTS.LoanNFT,
-    abi: LOAN_NFT_ABI,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-  });
-
   // Calculate PYUSD value from sPYUSD
   const pyusdValue =
     spyusdBalance && exchangeRate
       ? (spyusdBalance * exchangeRate) / BigInt(10 ** 18)
       : BigInt(0);
 
-  // Load loan positions
+  // Load loan positions from user's NFTs
   useEffect(() => {
     async function loadLoans() {
-      if (!address || !loanNftCount || loanNftCount === BigInt(0)) {
+      if (!address || !publicClient) {
+        console.log("UserPortfolio: No address or publicClient", { address, publicClient });
         setLoanPositions([]);
         return;
       }
 
       setLoading(true);
       try {
+        console.log("UserPortfolio: Fetching NFT transfers for", address);
+        // Get user's NFT transfers from Blockscout
+        const transfersResponse = await blockscoutAPI.getAddressTokenTransfers(
+          address,
+          {
+            type: "ERC-721",
+            token: CONTRACTS.LoanNFT,
+          }
+        );
+
+        console.log("UserPortfolio: Transfers response", transfersResponse);
+
+        if (!transfersResponse.items || transfersResponse.items.length === 0) {
+          console.log("UserPortfolio: No transfers found");
+          setLoanPositions([]);
+          setLoading(false);
+          return;
+        }
+
+        // Extract unique token IDs where user is current owner
+        const ownedTokenIds = new Set<string>();
+
+        // Process transfers to find currently owned tokens
+        for (const transfer of transfersResponse.items) {
+          const tokenId = transfer.total?.token_id;
+          if (!tokenId) continue;
+
+          // If user received this token, add it
+          if (transfer.to.hash.toLowerCase() === address.toLowerCase()) {
+            ownedTokenIds.add(tokenId);
+          }
+          // If user sent this token, remove it
+          if (transfer.from.hash.toLowerCase() === address.toLowerCase()) {
+            ownedTokenIds.delete(tokenId);
+          }
+        }
+
+        console.log("UserPortfolio: Owned token IDs", Array.from(ownedTokenIds));
+
+        if (ownedTokenIds.size === 0) {
+          console.log("UserPortfolio: No owned NFTs");
+          setLoanPositions([]);
+          setLoading(false);
+          return;
+        }
+
         const positions: LoanPosition[] = [];
 
-        // Fetch all loan NFT token IDs
-        for (let i = 0; i < Number(loanNftCount); i++) {
-          // This would need a proper contract read - simplified for now
-          // In production, you'd use multicall or loop through tokenOfOwnerByIndex
-          positions.push({
-            tokenId: BigInt(i + 1), // Placeholder
-            collateral: BigInt(0),
-            debt: BigInt(0),
-            liquidationRatio: 0,
-            shortRatio: 0,
-            timestamp: BigInt(0),
-          });
+        // Fetch loan details for each owned NFT
+        for (const tokenIdStr of ownedTokenIds) {
+          try {
+            const tokenId = BigInt(tokenIdStr);
+            console.log("UserPortfolio: Processing NFT", tokenId.toString());
+
+            // Get loan info from contract
+            console.log("UserPortfolio: Calling getLoan...");
+            const loanInfo = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "getLoan",
+              args: [tokenId],
+            }) as any;
+
+            console.log("UserPortfolio: Loan info", {
+              collateral: loanInfo.collateralAmount?.toString(),
+              debt: loanInfo.borrowAmount?.toString(),
+            });
+
+            // Get health factor from contract
+            console.log("UserPortfolio: Calling getHealthFactor...");
+            const healthFactorRaw = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "getHealthFactor",
+              args: [tokenId],
+            }) as bigint;
+
+            console.log("UserPortfolio: Health factor", healthFactorRaw.toString());
+
+            // Get accumulated interest from contract
+            console.log("UserPortfolio: Calling calculateInterest...");
+            const interest = await publicClient.readContract({
+              address: CONTRACTS.LendingPool,
+              abi: EthereumLendingPoolABI,
+              functionName: "calculateInterest",
+              args: [tokenId],
+            }) as bigint;
+
+            console.log("UserPortfolio: Interest", interest.toString());
+
+            // Convert health factor from basis points (e.g., 15000 = 1.5x)
+            const healthFactor = (Number(healthFactorRaw) / 10000).toFixed(2);
+
+            positions.push({
+              tokenId,
+              collateral: loanInfo.collateralAmount,
+              debt: loanInfo.borrowAmount,
+              liquidationRatio: Number(loanInfo.liquidationRatio) / 100,
+              shortRatio: Number(loanInfo.shortRatio) / 100,
+              timestamp: loanInfo.timestamp,
+              interest,
+              healthFactor,
+            });
+
+            console.log("UserPortfolio: Added position", positions.length);
+          } catch (error) {
+            console.error(`UserPortfolio: Failed to fetch loan ${tokenIdStr}:`, error);
+          }
         }
+
+        console.log("UserPortfolio: Final positions", positions);
 
         setLoanPositions(positions);
       } catch (error) {
@@ -158,7 +251,7 @@ export default function UserPortfolio() {
     }
 
     loadLoans();
-  }, [address, loanNftCount]);
+  }, [address, publicClient]);
 
   // Load recent transactions
   useEffect(() => {
@@ -285,7 +378,7 @@ export default function UserPortfolio() {
                     View NFT →
                   </a>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm mb-3">
                   <div>
                     <div className="text-gray-600 dark:text-gray-400">Collateral</div>
                     <div className="font-medium text-gray-900 dark:text-white">
@@ -296,6 +389,24 @@ export default function UserPortfolio() {
                     <div className="text-gray-600 dark:text-gray-400">Debt</div>
                     <div className="font-medium text-gray-900 dark:text-white">
                       {formatUnits(loan.debt, 6)} PYUSD
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div>
+                    <div className="text-gray-600 dark:text-gray-400">Interest</div>
+                    <div className="font-medium text-orange-600 dark:text-orange-400">
+                      {formatUnits(loan.interest, 6)} PYUSD
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-600 dark:text-gray-400">Health Factor</div>
+                    <div className={`font-medium ${
+                      parseFloat(loan.healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
+                      parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
+                      "text-red-600 dark:text-red-400"
+                    }`}>
+                      {loan.healthFactor}x
                     </div>
                   </div>
                 </div>

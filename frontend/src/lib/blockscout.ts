@@ -35,6 +35,7 @@ export interface BlockscoutTokenTransfer {
   total: {
     value: string;
     decimals: string;
+    token_id?: string; // For ERC-721
   };
   timestamp: string;
 }
@@ -204,6 +205,24 @@ class BlockscoutAPI {
       value: string;
       token_id?: string;
     }>>(`/addresses/${address}/token-balances`);
+  }
+
+  async getAddressNFTs(address: string, params: { type?: string } = {}) {
+    return this.request<BlockscoutPaginatedResponse<{
+      token: BlockscoutTokenInfo;
+      token_id: string;
+      value: string;
+      id: string;
+    }>>(`/addresses/${address}/nfts`, params);
+  }
+
+  async getAddressNFTsByCollection(address: string, collectionAddress: string) {
+    return this.request<BlockscoutPaginatedResponse<{
+      token: BlockscoutTokenInfo;
+      token_id: string;
+      value: string;
+      id: string;
+    }>>(`/addresses/${address}/nfts`, { token: collectionAddress });
   }
 
   async getAddressLogs(address: string, params: any = {}) {
