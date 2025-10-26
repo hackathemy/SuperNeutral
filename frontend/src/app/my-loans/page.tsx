@@ -206,7 +206,7 @@ export default function MyLoansPage() {
               {!userLoanIds || userLoanIds.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center border border-gray-200 dark:border-gray-700">
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Active Loans 포지션이 없습니다
+                    No Active Loan Positions
                   </p>
                   <Link
                     href="/borrow"
@@ -289,7 +289,7 @@ export default function MyLoansPage() {
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">부분 Repay (PYUSD)</label>
+                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Partial Repay (PYUSD)</label>
                             <div className="flex gap-2">
                               <input
                                 type="number"
