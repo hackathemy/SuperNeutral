@@ -22,6 +22,7 @@ interface ILendingPool {
         uint256 borrowAmount;      // PYUSD borrowed
         uint256 liquidationRatio;  // 50-80% (in basis points, 5000-8000)
         uint256 shortPositionRatio; // 0-30% (in basis points, 0-3000)
+        uint256 shortPositionId;   // ID of short position (0 if no short)
         uint256 borrowTimestamp;
         uint256 accruedInterest;
         bool isActive;
