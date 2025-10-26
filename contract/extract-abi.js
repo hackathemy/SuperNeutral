@@ -4,23 +4,23 @@ import { join } from "path";
 const contracts = [
   {
     name: "EthereumLendingPool",
-    path: "contract/artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json",
-    output: "frontend/src/lib/abis/EthereumLendingPool.ts"
+    path: "artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json",
+    output: "../frontend/src/lib/abis/EthereumLendingPool.ts"
   },
   {
     name: "EthereumLoanNFT",
-    path: "contract/artifacts/contracts/ethereum/core/EthereumLoanNFT.sol/EthereumLoanNFT.json",
-    output: "frontend/src/lib/abis/EthereumLoanNFT.ts"
+    path: "artifacts/contracts/ethereum/core/EthereumLoanNFT.sol/EthereumLoanNFT.json",
+    output: "../frontend/src/lib/abis/EthereumLoanNFT.ts"
   },
   {
     name: "MockPYUSD",
-    path: "contract/artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json",
-    output: "frontend/src/lib/abis/MockPYUSD.ts"
+    path: "artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json",
+    output: "../frontend/src/lib/abis/MockPYUSD.ts"
   },
   {
     name: "StakedPYUSD",
-    path: "contract/artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json",
-    output: "frontend/src/lib/abis/StakedPYUSD.ts"
+    path: "artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json",
+    output: "../frontend/src/lib/abis/StakedPYUSD.ts"
   }
 ];
 

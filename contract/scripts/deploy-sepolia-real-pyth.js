@@ -8,8 +8,17 @@ dotenv.config();
 
 const hre = hardhat;
 
+/**
+ * Deploy Lending Protocol on Sepolia with REAL Pyth Oracle
+ *
+ * Uses real Pyth Network oracle at: 0xDd24F84d36BF92C65F92307595335bdFab5Bbd21
+ */
 async function main() {
-    console.log("🚀 Starting Lending Protocol deployment on Sepolia with Mock Pyth Oracle...\n");
+    console.log("🚀 Starting Lending Protocol deployment on Sepolia with REAL Pyth Oracle...\n");
+
+    // REAL contracts on Ethereum Sepolia
+    const REAL_PYTH_ORACLE = "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21";
+    const OFFICIAL_PYUSD = "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9";
 
     try {
         // Connect to network
@@ -32,29 +41,19 @@ async function main() {
         }
 
         // Deploy contracts in order
-        console.log("\n📝 Deploying contracts...");
+        console.log("\n📝 Deploying contracts...\n");
 
-        // 1. Deploy Mock Pyth Oracle
-        console.log("\n1️⃣ Deploying MockPythOracle...");
-        const pythArtifact = JSON.parse(
-            readFileSync(join(process.cwd(), "artifacts/contracts/mocks/MockPythOracle.sol/MockPythOracle.json"), "utf8")
-        );
-        const pythFactory = new ethers.ContractFactory(pythArtifact.abi, pythArtifact.bytecode, signer);
-        const mockPyth = await pythFactory.deploy();
-        await mockPyth.waitForDeployment();
-        const pythAddress = await mockPyth.getAddress();
-        console.log("✅ MockPythOracle deployed to:", pythAddress);
+        // 1. Use REAL Pyth Oracle (already deployed)
+        console.log("1️⃣ Using REAL Pyth Oracle on Sepolia:");
+        console.log("   Address:", REAL_PYTH_ORACLE);
+        console.log("   ✅ No deployment needed - using existing Pyth Network oracle");
 
-        // 2. Deploy Mock PYUSD
-        console.log("\n2️⃣ Deploying MockPYUSD...");
-        const pyusdArtifact = JSON.parse(
-            readFileSync(join(process.cwd(), "artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json"), "utf8")
-        );
-        const pyusdFactory = new ethers.ContractFactory(pyusdArtifact.abi, pyusdArtifact.bytecode, signer);
-        const mockPYUSD = await pyusdFactory.deploy();
-        await mockPYUSD.waitForDeployment();
-        const pyusdAddress = await mockPYUSD.getAddress();
-        console.log("✅ MockPYUSD deployed to:", pyusdAddress);
+        // 2. Use Official PYUSD (already deployed)
+        console.log("\n2️⃣ Using Official PYUSD on Sepolia:");
+        console.log("   Address:", OFFICIAL_PYUSD);
+        console.log("   ✅ No deployment needed - using official PayPal USD");
+        console.log("   Get testnet PYUSD from: https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd");
+        const pyusdAddress = OFFICIAL_PYUSD;
 
         // 3. Deploy EthereumLoanNFT
         console.log("\n3️⃣ Deploying EthereumLoanNFT...");
@@ -89,18 +88,19 @@ async function main() {
         const spyusdAddress = await stakedPYUSD.getAddress();
         console.log("✅ StakedPYUSD deployed to:", spyusdAddress);
 
-        // 6. Deploy EthereumLendingPool with Mock Pyth Oracle
-        console.log("\n6️⃣ Deploying EthereumLendingPool...");
+        // 6. Deploy EthereumLendingPool with REAL Pyth Oracle
+        console.log("\n6️⃣ Deploying EthereumLendingPool with REAL Pyth Oracle...");
+        console.log("   Using Pyth Oracle:", REAL_PYTH_ORACLE);
         const poolArtifact = JSON.parse(
             readFileSync(join(process.cwd(), "artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json"), "utf8")
         );
         const poolFactory = new ethers.ContractFactory(poolArtifact.abi, poolArtifact.bytecode, signer);
         const lendingPool = await poolFactory.deploy(
-            pyusdAddress,      // Mock PYUSD
-            nftAddress,        // Loan NFT
-            vaultAddress,      // Mock Vault
-            pythAddress,       // Mock Pyth Oracle
-            spyusdAddress      // Staked PYUSD
+            pyusdAddress,        // Mock PYUSD
+            nftAddress,          // Loan NFT
+            vaultAddress,        // Mock Vault
+            REAL_PYTH_ORACLE,    // REAL Pyth Oracle
+            spyusdAddress        // Staked PYUSD
         );
         await lendingPool.waitForDeployment();
         const poolAddress = await lendingPool.getAddress();
@@ -125,66 +125,81 @@ async function main() {
         await setPoolTx.wait();
         console.log("✅ Set lending pool address in sPYUSD");
 
-        // 8. Setup initial liquidity
-        console.log("\n💰 Setting up initial liquidity...");
+        // 8. Initial liquidity setup instructions
+        console.log("\n💰 Initial Liquidity Setup:");
+        console.log("   To supply PYUSD liquidity to the pool:");
+        console.log("   1. Get testnet PYUSD from faucet:");
+        console.log("      https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd");
+        console.log("   2. Approve PYUSD for lending pool");
+        console.log("   3. Call supplyPYUSD() on the lending pool");
+        console.log("");
 
-        // Mint PYUSD to the pool for liquidity
-        const mintAmount = ethers.parseUnits("100000", 6); // 100k PYUSD
-        const mintTx = await mockPYUSD.mint(signerAddress, mintAmount);
-        await mintTx.wait();
-        console.log("✅ Minted 100,000 PYUSD to deployer");
+        // 9. Verify REAL Pyth Oracle prices
+        console.log("\n📊 Verifying REAL Pyth Oracle prices...");
+        console.log("⚠️  Note: Real Pyth requires price updates via Hermes API");
+        console.log("   Get price updates from: https://hermes.pyth.network/");
 
-        // Approve and supply PYUSD to the pool
-        const approveTx = await mockPYUSD.approve(poolAddress, mintAmount);
-        await approveTx.wait();
-
-        const supplyTx = await lendingPool.supplyPYUSD(mintAmount, ethers.ZeroAddress);
-        await supplyTx.wait();
-        console.log("✅ Supplied 100,000 PYUSD to lending pool");
-
-        // 9. Verify Mock Pyth Oracle prices
-        console.log("\n📊 Verifying Mock Pyth Oracle prices...");
-        const ethPrice = await lendingPool.getETHPrice();
-        console.log("✅ ETH Price:", ethers.formatUnits(ethPrice, 8), "USD");
+        try {
+            const ethPrice = await lendingPool.getETHPrice();
+            console.log("✅ ETH Price (from REAL Pyth):", ethers.formatUnits(ethPrice, 8), "USD");
+        } catch (e) {
+            console.log("⚠️  Price may be stale. Update prices using:");
+            console.log("   https://hermes.pyth.network/api/latest_vaas");
+        }
 
         // Summary
         console.log("\n=================================");
-        console.log("🎉 Sepolia Deployment Complete!");
+        console.log("🎉 Sepolia Deployment Complete with REAL Pyth Oracle!");
         console.log("=================================");
         console.log("📋 Contract Addresses:");
-        console.log("  MockPythOracle:", pythAddress);
-        console.log("  MockPYUSD:", pyusdAddress);
+        console.log("  🔴 REAL Pyth Oracle:", REAL_PYTH_ORACLE);
+        console.log("     (Deployed by Pyth Network on Sepolia)");
+        console.log("  🟢 Official PYUSD:", pyusdAddress);
+        console.log("     (Official PayPal USD on Sepolia)");
         console.log("  EthereumLoanNFT:", nftAddress);
         console.log("  MockStETHVault:", vaultAddress);
         console.log("  StakedPYUSD:", spyusdAddress);
         console.log("  EthereumLendingPool:", poolAddress);
         console.log("=================================");
-        console.log("\n📝 Next Steps:");
-        console.log("1. Test borrowing with ETH collateral");
-        console.log("2. Test liquidation by simulating price crash");
-        console.log("3. Test repayment and NFT transfer");
+        console.log("\n📝 Price Feed IDs (Pyth Network):");
+        console.log("  ETH/USD:", "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6");
+        console.log("  PYUSD/USD:", "0x41f3625971ca2ed2263e78573fe5ce23e13d2558ed3f2e47ab0f84fb9e7ae722");
+        console.log("=================================");
+        console.log("\n✨ Features Enabled:");
+        console.log("  ✅ Real-time market prices from Pyth Network");
+        console.log("  ✅ Official PYUSD stablecoin (PayPal USD)");
+        console.log("  ✅ Flash loan functionality (0.09% fee)");
+        console.log("  ✅ Cross-chain compatible with Arbitrum Sepolia");
+        console.log("  ✅ Decentralized oracle network");
+        console.log("=================================");
+        console.log("\n🔗 Useful Links:");
+        console.log("  Pyth Hermes API:", "https://hermes.pyth.network/");
+        console.log("  Pyth Docs:", "https://docs.pyth.network/");
+        console.log("  Sepolia Explorer:", `https://sepolia.etherscan.io/address/${poolAddress}`);
+        console.log("  Pyth Oracle:", `https://sepolia.etherscan.io/address/${REAL_PYTH_ORACLE}`);
         console.log("=================================");
 
         // Save deployment info
         const deployment = {
             network: "sepolia",
             timestamp: new Date().toISOString(),
+            oracleType: "real-pyth",
             contracts: {
-                MockPythOracle: pythAddress,
-                MockPYUSD: pyusdAddress,
+                PythOracle: REAL_PYTH_ORACLE,
+                OfficialPYUSD: pyusdAddress,
                 EthereumLoanNFT: nftAddress,
                 MockStETHVault: vaultAddress,
                 StakedPYUSD: spyusdAddress,
                 EthereumLendingPool: poolAddress
             },
             deployer: signerAddress,
-            explorerUrls: {
-                MockPythOracle: `https://sepolia.etherscan.io/address/${pythAddress}`,
-                MockPYUSD: `https://sepolia.etherscan.io/address/${pyusdAddress}`,
-                EthereumLoanNFT: `https://sepolia.etherscan.io/address/${nftAddress}`,
-                MockStETHVault: `https://sepolia.etherscan.io/address/${vaultAddress}`,
-                StakedPYUSD: `https://sepolia.etherscan.io/address/${spyusdAddress}`,
-                EthereumLendingPool: `https://sepolia.etherscan.io/address/${poolAddress}`
+            priceFeedIds: {
+                ethUsd: "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6",
+                pyusdUsd: "0x41f3625971ca2ed2263e78573fe5ce23e13d2558ed3f2e47ab0f84fb9e7ae722"
+            },
+            faucets: {
+                pyusd: "https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd",
+                eth: "https://www.alchemy.com/faucets/ethereum-sepolia"
             }
         };
 

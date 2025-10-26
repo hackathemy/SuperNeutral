@@ -1,20 +1,31 @@
-// Updated with Cross-Chain onBehalfOf Parameter Support (2025-10-19)
+// Updated with Real Pyth Oracle & Official PYUSD (2025-10-26)
+// Updated with 7-day price staleness for testnet (2025-10-26)
 export const CONTRACTS = {
-  LendingPool: "0x29DAC22Ff8Fd47Df08BAA9C14d269cca5DB06DF2" as `0x${string}`,
-  LoanNFT: "0x8C363c801C4E46301a6e184C632E7699f28f76f2" as `0x${string}`,
-  MockPYUSD: "0x0B0965002984157446c2300E37A545840BD69195" as `0x${string}`,
-  MockStETHVault: "0x38B6C8A32c278EE804D2EEe8965f1db258E257E1" as `0x${string}`,
-  MockPythOracle: "0x6BaC2D31e74c08cb75117b027c390DeCEDdF6e18" as `0x${string}`,
-  StakedPYUSD: "0x511dc3421336B6A6b772e274b5f99b88257da66e" as `0x${string}`,
+  // Core Contracts
+  LendingPool: "0x316717AC8961B8396Ffd3349Dd562CB5195d9b1A" as `0x${string}`,
+  LoanNFT: "0xED425451e23239a8e5785d63659cE234067b47FA" as `0x${string}`,
+  StakedPYUSD: "0x9Fc31eE2Fa96d49207c2a3513F029F1f4eCf8699" as `0x${string}`,
+
+  // Official Tokens & Oracles (Deployed by Pyth & PayPal)
+  PYUSD: "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9" as `0x${string}`,
+  PythOracle: "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21" as `0x${string}`,
+
+  // Mock Contracts (Only for testing)
+  MockStETHVault: "0xD1Ee99250Ff85ccf2A700C86a9a50A39E4f247B7" as `0x${string}`,
 } as const;
 
 export const EXPLORER_URLS = {
-  LendingPool: "https://sepolia.etherscan.io/address/0x29DAC22Ff8Fd47Df08BAA9C14d269cca5DB06DF2",
-  LoanNFT: "https://sepolia.etherscan.io/address/0x8C363c801C4E46301a6e184C632E7699f28f76f2",
-  MockPYUSD: "https://sepolia.etherscan.io/address/0x0B0965002984157446c2300E37A545840BD69195",
-  MockStETHVault: "https://sepolia.etherscan.io/address/0x38B6C8A32c278EE804D2EEe8965f1db258E257E1",
-  MockPythOracle: "https://sepolia.etherscan.io/address/0x6BaC2D31e74c08cb75117b027c390DeCEDdF6e18",
-  StakedPYUSD: "https://sepolia.etherscan.io/address/0x511dc3421336B6A6b772e274b5f99b88257da66e",
+  LendingPool: "https://sepolia.etherscan.io/address/0x316717AC8961B8396Ffd3349Dd562CB5195d9b1A",
+  LoanNFT: "https://sepolia.etherscan.io/address/0xED425451e23239a8e5785d63659cE234067b47FA",
+  StakedPYUSD: "https://sepolia.etherscan.io/address/0x9Fc31eE2Fa96d49207c2a3513F029F1f4eCf8699",
+  PYUSD: "https://sepolia.etherscan.io/address/0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9",
+  PythOracle: "https://sepolia.etherscan.io/address/0xDd24F84d36BF92C65F92307595335bdFab5Bbd21",
+  MockStETHVault: "https://sepolia.etherscan.io/address/0xD1Ee99250Ff85ccf2A700C86a9a50A39E4f247B7",
+} as const;
+
+export const FAUCETS = {
+  PYUSD: "https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd",
+  ETH: "https://www.alchemy.com/faucets/ethereum-sepolia",
 } as const;
 
 export const NETWORK_INFO = {
@@ -28,4 +39,9 @@ export const NETWORK_INFO = {
     name: "Arbitrum Sepolia",
     rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc",
   },
+} as const;
+
+export const PRICE_FEED_IDS = {
+  ETH_USD: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace" as `0x${string}`,
+  PYUSD_USD: "0x41f3625971ca2ed2263e78573fe5ce23e13d2558ed3f2e47ab0f84fb9e7ae722" as `0x${string}`,
 } as const;

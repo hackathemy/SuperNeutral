@@ -1,4 +1,4 @@
-// Auto-generated from contract/artifacts/contracts/ethereum/core/EthereumLoanNFT.sol/EthereumLoanNFT.json
+// Auto-generated from artifacts/contracts/ethereum/core/EthereumLoanNFT.sol/EthereumLoanNFT.json
 // DO NOT EDIT MANUALLY
 
 export const EthereumLoanNFTABI = [

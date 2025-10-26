@@ -1,4 +1,4 @@
-// Auto-generated from contract/artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json
+// Auto-generated from artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json
 // DO NOT EDIT MANUALLY
 
 export const StakedPYUSDABI = [

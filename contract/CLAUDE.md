@@ -126,3 +126,55 @@ When plugins become available:
 - Use `.js` extension for config files when using JavaScript
 - Hardhat 3 introduces breaking API changes from Hardhat 2.x
 - Monitor official Hardhat docs for plugin updates
+
+## 🔮 Oracle & Token Configuration
+
+### Real Pyth Network Oracle on Sepolia
+
+**This project uses REAL Pyth Network oracle and official PYUSD on Sepolia testnet.**
+
+#### Deployed Contracts
+- **Pyth Oracle**: `0xDd24F84d36BF92C65F92307595335bdFab5Bbd21` (Official Pyth deployment)
+- **PYUSD**: `0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9` (Official PayPal USD)
+- **Lending Pool**: `0x67039797A2E2533D1a76B559c009ba71938005E2`
+- **Staked PYUSD**: `0xd115196fAd8D80ba1990820430F097d2b2EB663A`
+- **Loan NFT**: `0x8a8913458D1F3204CB212d2e7D746e45C561f8E9`
+
+#### Network Architecture
+- **Sepolia L1**: All main contracts deployed here
+  - ✅ Uses **REAL Pyth Oracle** at `0xDd24F84d36BF92C65F92307595335bdFab5Bbd21`
+  - ✅ Uses **Official PYUSD** at `0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9`
+  - 🔄 Price updates via Hermes API: `https://hermes.pyth.network/`
+- **Arbitrum Sepolia**: Used for cross-chain operations via Nexus SDK
+  - Real Pyth Oracle also available on Arbitrum
+  - Cross-chain borrowing supported
+
+#### Price Feed IDs (Pyth Standard)
+```solidity
+// ETH/USD Price Feed
+bytes32 public constant ETH_USD_PRICE_FEED =
+    0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6;
+
+// PYUSD/USD Price Feed
+bytes32 public constant PYUSD_USD_PRICE_FEED =
+    0x41f3625971ca2ed2263e78573fe5ce23e13d2558ed3f2e47ab0f84fb9e7ae722;
+```
+
+#### Getting Test Tokens
+- **PYUSD Faucet**: https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd
+  - Up to 100 PYUSD per day per Google account
+- **Sepolia ETH**: https://www.alchemy.com/faucets/ethereum-sepolia
+
+#### Working Commands
+- `npm run deploy:sepolia` - Deploy with Real Pyth & Official PYUSD
+- `npm run oracle:update` - Update Real Pyth prices from Hermes API
+- `npm test:flashloan` - Test flash loan functionality
+
+#### Important Notes
+- ✅ Using **REAL** Pyth Network oracle (not mock)
+- ✅ Using **Official** PayPal USD (not mock)
+- 🔄 Pyth uses "pull" model - prices updated via Hermes API
+- 💰 Flash loans enabled with 0.09% fee
+- 🌉 Cross-chain borrowing supported via Nexus SDK
+
+For detailed information, see `REAL_PYTH_GUIDE.md`

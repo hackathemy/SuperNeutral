@@ -1,4 +1,4 @@
 export { EthereumLendingPoolABI } from "./EthereumLendingPool";
 export { EthereumLoanNFTABI } from "./EthereumLoanNFT";
-export { MockPYUSDABI } from "./MockPYUSD";
+export { PYUSDABI } from "./PYUSD";
 export { StakedPYUSDABI } from "./StakedPYUSD";
