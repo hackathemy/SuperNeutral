@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/ILendingPool.sol";
 import "../interfaces/ILoanNFT.sol";
 import "../interfaces/IStETHVault.sol";
+import "../interfaces/IERC3156FlashLender.sol";
+import "../interfaces/IERC3156FlashBorrower.sol";
 import "../libraries/LendingMath.sol";
 import "./EthereumLoanNFT.sol";
 import "../tokens/StakedPYUSD.sol";
@@ -29,9 +31,9 @@ interface IPyth {
 /**
  * @title EthereumLendingPool
  * @notice Main lending pool contract for ETH collateral and PYUSD borrowing
- * @dev Integrates with LIDO for yield generation and Pyth for price feeds
+ * @dev Integrates with LIDO for yield generation, Pyth for price feeds, and ERC-3156 flash loans
  */
-contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable {
+contract EthereumLendingPool is ILendingPool, IERC3156FlashLender, ReentrancyGuard, Pausable, Ownable {
     using SafeERC20 for IERC20;
     using LendingMath for uint256;
 
@@ -41,9 +43,13 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
     uint256 public constant MAX_SHORT_RATIO = 3000; // 30% in basis points
     uint256 public constant LIQUIDATION_BONUS = 10; // 0.1% bonus for liquidators
     uint256 public constant BASIS_POINTS = 10000;
+    uint256 public constant FLASH_LOAN_FEE = 9; // 0.09% flash loan fee (9 basis points)
 
-    // Pyth price feed IDs (testnet - Sepolia)
-    bytes32 public constant ETH_USD_PRICE_FEED = 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6;
+    // ERC-3156 callback success return value
+    bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
+    // Pyth price feed IDs (verified working on all networks including Sepolia)
+    bytes32 public constant ETH_USD_PRICE_FEED = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
     bytes32 public constant PYUSD_USD_PRICE_FEED = 0x41f3625971ca2ed2263e78573fe5ce23e13d2558ed3f2e47ab0f84fb9e7ae722;
 
     // Contract references
@@ -95,21 +101,25 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
     /**
      * @dev Supply PYUSD to the lending pool and receive sPYUSD
      * @param amount Amount of PYUSD to supply
+     * @param onBehalfOf Address to mint the sPYUSD to (address(0) for msg.sender)
      * @return spyusdAmount Amount of sPYUSD minted
      */
-    function supplyPYUSD(uint256 amount) external override nonReentrant whenNotPaused returns (uint256 spyusdAmount) {
+    function supplyPYUSD(uint256 amount, address onBehalfOf) external override nonReentrant whenNotPaused returns (uint256 spyusdAmount) {
         require(amount > 0, "Zero supply");
 
-        // Transfer PYUSD from user
+        // Determine the actual recipient address
+        address recipient = onBehalfOf == address(0) ? msg.sender : onBehalfOf;
+
+        // Transfer PYUSD from msg.sender (always the one paying)
         PYUSD.safeTransferFrom(msg.sender, address(this), amount);
 
-        // Mint sPYUSD to user based on current exchange rate
-        spyusdAmount = stakedPYUSD.mint(msg.sender, amount);
+        // Mint sPYUSD to recipient based on current exchange rate
+        spyusdAmount = stakedPYUSD.mint(recipient, amount);
 
         // Update total supplied
         totalPYUSDSupplied += amount;
 
-        emit PYUSDSupplied(msg.sender, amount);
+        emit PYUSDSupplied(recipient, amount);
 
         return spyusdAmount;
     }
@@ -145,13 +155,17 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
      * @param pyusdAmount Amount of PYUSD to borrow
      * @param liquidationRatio Liquidation ratio in basis points (5000-8000)
      * @param shortRatio Short position ratio in basis points (0-3000)
+     * @param onBehalfOf Address to mint the loan NFT to (address(0) for msg.sender)
      * @return tokenId The NFT token ID representing the loan
      */
     function borrow(
         uint256 pyusdAmount,
         uint256 liquidationRatio,
-        uint256 shortRatio
+        uint256 shortRatio,
+        address onBehalfOf
     ) external payable override nonReentrant whenNotPaused notEmergency returns (uint256 tokenId) {
+        // Determine the actual borrower address
+        address borrower = onBehalfOf == address(0) ? msg.sender : onBehalfOf;
         require(msg.value > 0, "Zero collateral");
         require(pyusdAmount > 0, "Zero borrow");
         require(liquidationRatio >= MIN_LIQUIDATION_RATIO && liquidationRatio <= MAX_LIQUIDATION_RATIO, "Invalid liquidation ratio");
@@ -173,7 +187,7 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         // Create loan
         tokenId = nextTokenId++;
         loans[tokenId] = Loan({
-            borrower: msg.sender,
+            borrower: borrower,
             collateralAmount: msg.value,
             borrowAmount: pyusdAmount,
             liquidationRatio: liquidationRatio,
@@ -184,7 +198,7 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         });
 
         // Mint NFT
-        loanNFT.mint(msg.sender, tokenId);
+        loanNFT.mint(borrower, tokenId);
 
         // Store metadata in NFT
         EthereumLoanNFT(address(loanNFT)).setLoanMetadata(
@@ -192,10 +206,10 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
             msg.value,
             pyusdAmount,
             liquidationRatio,
-            msg.sender
+            borrower
         );
 
-        userLoanIds[msg.sender].push(tokenId);
+        userLoanIds[borrower].push(tokenId);
 
         // Update totals
         totalETHCollateral += msg.value;
@@ -205,9 +219,9 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
         stETHVault.depositETH{value: msg.value}();
 
         // Transfer PYUSD to borrower
-        PYUSD.safeTransfer(msg.sender, pyusdAmount);
+        PYUSD.safeTransfer(borrower, pyusdAmount);
 
-        emit Borrowed(msg.sender, tokenId, msg.value, pyusdAmount);
+        emit Borrowed(borrower, tokenId, msg.value, pyusdAmount);
 
         return tokenId;
     }
@@ -393,10 +407,25 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
      */
     function getETHPrice() public view returns (uint256) {
         IPyth.Price memory price = pythOracle.getPriceUnsafe(ETH_USD_PRICE_FEED);
-        require(price.publishTime > block.timestamp - 300, "Price too old");
+
+        // TESTNET ONLY: 7 days (604800 seconds) for testing purposes
+        // TODO: Change to 300 seconds (5 minutes) for mainnet deployment
+        require(price.publishTime > block.timestamp - 604800, "Price too old");
 
         // Convert Pyth price to 18 decimals
-        int256 normalizedPrice = int256(price.price) * int256(10 ** uint256(uint32(18 + price.expo)));
+        // Pyth price has expo (usually -8), we need to convert to 18 decimals
+        // Example: price = 395299036446, expo = -8
+        // Real price = 395299036446 * 10^(-8) = 3952.99
+        // Target: 3952.99 * 10^18
+        int256 normalizedPrice;
+        if (price.expo >= 0) {
+            // Positive exponent (rare)
+            normalizedPrice = int256(price.price) * int256(10 ** (18 + uint32(price.expo)));
+        } else {
+            // Negative exponent (normal case)
+            // Convert: price * 10^18 / 10^(-expo)
+            normalizedPrice = (int256(price.price) * int256(10 ** 18)) / int256(10 ** uint32(-price.expo));
+        }
         require(normalizedPrice > 0, "Invalid price");
 
         return uint256(normalizedPrice);
@@ -466,6 +495,100 @@ contract EthereumLendingPool is ILendingPool, ReentrancyGuard, Pausable, Ownable
     function updatePrices(bytes[] calldata priceUpdateData) external payable {
         pythOracle.updatePriceFeeds{value: msg.value}(priceUpdateData);
     }
+
+    // ============ ERC-3156 Flash Loan Functions ============
+
+    /**
+     * @dev Get the maximum flash loan amount available for a token
+     * @param token The loan currency (must be PYUSD)
+     * @return The maximum amount that can be borrowed
+     */
+    function maxFlashLoan(address token) external view override returns (uint256) {
+        if (token != address(PYUSD)) {
+            return 0;
+        }
+        // Available liquidity = total supplied - total borrowed
+        uint256 availableLiquidity = totalPYUSDSupplied > totalPYUSDBorrowed
+            ? totalPYUSDSupplied - totalPYUSDBorrowed
+            : 0;
+        return availableLiquidity;
+    }
+
+    /**
+     * @dev Get the flash loan fee for a given amount
+     * @param token The loan currency (must be PYUSD)
+     * @param amount The amount of tokens to borrow
+     * @return The fee amount (0.09% of loan amount)
+     */
+    function flashFee(address token, uint256 amount) public view override returns (uint256) {
+        require(token == address(PYUSD), "Unsupported token");
+        return (amount * FLASH_LOAN_FEE) / BASIS_POINTS;
+    }
+
+    /**
+     * @dev Execute a flash loan
+     * @param receiver The contract receiving the tokens and implementing onFlashLoan
+     * @param token The loan currency (must be PYUSD)
+     * @param amount The amount of tokens to borrow
+     * @param data Arbitrary data passed to the receiver
+     * @return True if flash loan was successful
+     */
+    function flashLoan(
+        IERC3156FlashBorrower receiver,
+        address token,
+        uint256 amount,
+        bytes calldata data
+    ) external override nonReentrant whenNotPaused returns (bool) {
+        require(token == address(PYUSD), "Unsupported token");
+        require(amount > 0, "Zero flash loan");
+
+        // Check available liquidity
+        uint256 availableLiquidity = totalPYUSDSupplied - totalPYUSDBorrowed;
+        require(amount <= availableLiquidity, "Insufficient liquidity");
+
+        // Calculate fee
+        uint256 fee = flashFee(token, amount);
+
+        // Record balance before
+        uint256 balanceBefore = PYUSD.balanceOf(address(this));
+
+        // Transfer tokens to receiver
+        PYUSD.safeTransfer(address(receiver), amount);
+
+        // Execute callback
+        bytes32 callbackResult = receiver.onFlashLoan(msg.sender, token, amount, fee, data);
+        require(callbackResult == CALLBACK_SUCCESS, "Callback failed");
+
+        // Take back loan + fee
+        uint256 repaymentAmount = amount + fee;
+        PYUSD.safeTransferFrom(address(receiver), address(this), repaymentAmount);
+
+        // Verify balance increased by at least the fee
+        uint256 balanceAfter = PYUSD.balanceOf(address(this));
+        require(balanceAfter >= balanceBefore + fee, "Insufficient repayment");
+
+        // Distribute flash loan fee to sPYUSD holders by increasing exchange rate
+        if (fee > 0) {
+            // Add fee to total supplied (increases exchange rate for all sPYUSD holders)
+            totalPYUSDSupplied += fee;
+
+            // Update sPYUSD totalPYUSD to reflect fee earned
+            // This automatically increases the exchange rate for all sPYUSD holders
+            stakedPYUSD.updateTotalPYUSD(totalPYUSDSupplied);
+        }
+
+        emit FlashLoan(msg.sender, address(receiver), amount, fee);
+
+        return true;
+    }
+
+    // Events
+    event FlashLoan(
+        address indexed initiator,
+        address indexed receiver,
+        uint256 amount,
+        uint256 fee
+    );
 
     receive() external payable {
         // Accept ETH

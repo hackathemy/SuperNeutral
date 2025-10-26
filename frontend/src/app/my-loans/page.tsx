@@ -8,7 +8,7 @@ import { parseEther, formatEther, parseUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { EthereumLendingPoolABI } from "@/lib/abis/EthereumLendingPool";
 import { EthereumLoanNFTABI } from "@/lib/abis/EthereumLoanNFT";
-import { MockPYUSDABI } from "@/lib/abis/MockPYUSD";
+import { PYUSDABI } from "@/lib/abis/PYUSD";
 
 interface LoanData {
   tokenId: bigint;
@@ -68,8 +68,8 @@ export default function MyLoansPage() {
     try {
       // First approve PYUSD
       await writeContract({
-        address: CONTRACTS.MockPYUSD,
-        abi: MockPYUSDABI,
+        address: CONTRACTS.PYUSD,
+        abi: PYUSDABI,
         functionName: "approve",
         args: [CONTRACTS.LendingPool, parseUnits(repayAmount, 6)],
       });
@@ -79,7 +79,7 @@ export default function MyLoansPage() {
         address: CONTRACTS.LendingPool,
         abi: EthereumLendingPoolABI,
         functionName: "repay",
-        args: [selectedLoan, parseUnits(repayAmount, 6)],
+        args: [selectedLoan] as const,
       });
     } catch (error) {
       console.error("Repay error:", error);

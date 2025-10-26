@@ -28,9 +28,9 @@ interface ILendingPool {
     }
 
     // Core Functions
-    function supplyPYUSD(uint256 amount) external returns (uint256 spyusdAmount);
+    function supplyPYUSD(uint256 amount, address onBehalfOf) external returns (uint256 spyusdAmount);
     function withdrawPYUSD(uint256 spyusdAmount) external returns (uint256 pyusdAmount);
-    function borrow(uint256 pyusdAmount, uint256 liquidationRatio, uint256 shortRatio) external payable returns (uint256 tokenId);
+    function borrow(uint256 pyusdAmount, uint256 liquidationRatio, uint256 shortRatio, address onBehalfOf) external payable returns (uint256 tokenId);
     function repay(uint256 tokenId) external;
     function addCollateral(uint256 tokenId) external payable;
     function liquidate(uint256 tokenId) external;

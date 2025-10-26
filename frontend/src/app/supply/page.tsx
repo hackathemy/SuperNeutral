@@ -7,7 +7,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { parseUnits, formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { EthereumLendingPoolABI } from "@/lib/abis/EthereumLendingPool";
-import { MockPYUSDABI } from "@/lib/abis/MockPYUSD";
+import { PYUSDABI } from "@/lib/abis/PYUSD";
 import { StakedPYUSDABI } from "@/lib/abis/StakedPYUSD";
 
 export default function SupplyPage() {
@@ -21,8 +21,8 @@ export default function SupplyPage() {
 
   // Get user's PYUSD balance
   const { data: pyusdBalance } = useReadContract({
-    address: CONTRACTS.MockPYUSD,
-    abi: MockPYUSDABI,
+    address: CONTRACTS.PYUSD,
+    abi: PYUSDABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
   });
@@ -54,13 +54,13 @@ export default function SupplyPage() {
   const { data: totalSupplied } = useReadContract({
     address: CONTRACTS.LendingPool,
     abi: EthereumLendingPoolABI,
-    functionName: "totalSupplied",
+    functionName: "getTotalSupply",
   });
 
   const { data: totalBorrowed } = useReadContract({
     address: CONTRACTS.LendingPool,
     abi: EthereumLendingPoolABI,
-    functionName: "totalBorrowed",
+    functionName: "getTotalBorrowed",
   });
 
   // Calculate sPYUSD to mint for supply amount
@@ -80,15 +80,15 @@ export default function SupplyPage() {
   });
 
   const handleSupply = async () => {
-    if (!supplyAmount) return;
+    if (!supplyAmount || !address) return;
 
     try {
       const amount = parseUnits(supplyAmount, 6);
 
       // First approve PYUSD
       await writeContract({
-        address: CONTRACTS.MockPYUSD,
-        abi: MockPYUSDABI,
+        address: CONTRACTS.PYUSD,
+        abi: PYUSDABI,
         functionName: "approve",
         args: [CONTRACTS.LendingPool, amount],
       });
@@ -98,7 +98,7 @@ export default function SupplyPage() {
         address: CONTRACTS.LendingPool,
         abi: EthereumLendingPoolABI,
         functionName: "supplyPYUSD",
-        args: [amount],
+        args: [amount, address] as const,
       });
 
       setSupplyAmount("");
@@ -185,6 +185,43 @@ export default function SupplyPage() {
               <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                 {utilizationRate}%
               </p>
+            </div>
+          </div>
+
+          {/* Flash Loan Revenue Banner */}
+          <div className="mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-2xl shadow-lg p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 text-4xl">⚡</div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-2">
+                  Earn Flash Loan Revenue
+                </h3>
+                <p className="text-amber-800 dark:text-amber-200 mb-4">
+                  All sPYUSD holders automatically earn passive income from flash loan fees! Every flash loan executed increases your sPYUSD value through the exchange rate mechanism.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg p-4">
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mb-1">Flash Loan Fee</p>
+                    <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">0.09%</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Competitive with Aave</p>
+                  </div>
+                  <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg p-4">
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mb-1">Revenue Share</p>
+                    <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">100%</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">To sPYUSD holders</p>
+                  </div>
+                  <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg p-4">
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mb-1">How It Works</p>
+                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Automatic</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">No claiming needed</p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-amber-100/50 dark:bg-amber-900/30 rounded-lg">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    💡 <strong>Tip:</strong> Flash loan fees increase the total PYUSD backing sPYUSD, automatically boosting the exchange rate and making your sPYUSD more valuable over time!
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -386,7 +423,7 @@ export default function SupplyPage() {
               Get 10,000 PYUSD from our faucet for testing on Sepolia
             </p>
             <a
-              href={`https://sepolia.etherscan.io/address/${CONTRACTS.MockPYUSD}#writeContract`}
+              href={`https://sepolia.etherscan.io/address/${CONTRACTS.PYUSD}#writeContract`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"

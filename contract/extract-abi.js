@@ -5,22 +5,22 @@ const contracts = [
   {
     name: "EthereumLendingPool",
     path: "artifacts/contracts/ethereum/core/EthereumLendingPool.sol/EthereumLendingPool.json",
-    output: "frontend/src/lib/abis/EthereumLendingPool.ts"
+    output: "../frontend/src/lib/abis/EthereumLendingPool.ts"
   },
   {
     name: "EthereumLoanNFT",
     path: "artifacts/contracts/ethereum/core/EthereumLoanNFT.sol/EthereumLoanNFT.json",
-    output: "frontend/src/lib/abis/EthereumLoanNFT.ts"
+    output: "../frontend/src/lib/abis/EthereumLoanNFT.ts"
   },
   {
     name: "MockPYUSD",
     path: "artifacts/contracts/mocks/MockPYUSD.sol/MockPYUSD.json",
-    output: "frontend/src/lib/abis/MockPYUSD.ts"
+    output: "../frontend/src/lib/abis/MockPYUSD.ts"
   },
   {
     name: "StakedPYUSD",
     path: "artifacts/contracts/ethereum/tokens/StakedPYUSD.sol/StakedPYUSD.json",
-    output: "frontend/src/lib/abis/StakedPYUSD.ts"
+    output: "../frontend/src/lib/abis/StakedPYUSD.ts"
   }
 ];
 
