@@ -220,15 +220,18 @@ export default function UserPortfolio() {
 
             console.log("UserPortfolio: Interest", interest.toString());
 
-            // Safely convert health factor from basis points (e.g., 15000 = 1.5x)
+            // Health Factor is returned in 1e18 format (18 decimals)
+            // 1e18 = 1.0x, 12.26e18 = 12.26x
             let healthFactor: string;
 
-            // Check if health factor is too large (debt is 0 or very small)
-            if (healthFactorRaw > BigInt(10000000)) { // > 1000x
-              healthFactor = "∞"; // Infinite - no debt or extremely safe
+            const MAX_UINT256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+            // Check if health factor is max uint256 (debt is 0)
+            if (healthFactorRaw === MAX_UINT256) {
+              healthFactor = "∞"; // Infinite - no debt
             } else {
-              // Convert from basis points to decimal (10000 = 1.0x)
-              const healthFactorNum = Number(healthFactorRaw) / 10000;
+              // Convert from 1e18 to decimal (1e18 = 1.0x)
+              const healthFactorNum = Number(healthFactorRaw) / 1e18;
               healthFactor = healthFactorNum.toFixed(2);
             }
 
