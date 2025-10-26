@@ -125,7 +125,7 @@ export default function Home() {
             <div className="grid md:grid-cols-4 gap-6">
               <StatCard label="Total Supply" value="100,000 PYUSD" highlight />
               <StatCard label="Total Borrowed" value="500 PYUSD" />
-              <StatCard label="Active Loans" value="1개" />
+              <StatCard label="Active Loans" value="1" />
               <StatCard label="ETH Price" value="$2,000" />
             </div>
           </div>

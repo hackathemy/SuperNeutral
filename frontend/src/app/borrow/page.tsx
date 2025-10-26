@@ -243,10 +243,10 @@ export default function BorrowPage() {
               <div className="text-center py-8">
                 <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                   <p className="text-yellow-800 dark:text-yellow-200 mb-2">
-                    ⚠️ 지원하지 않는 네트워크
+                    ⚠️ Unsupported Network
                   </p>
                   <p className="text-sm text-yellow-600 dark:text-yellow-300">
-                    PYUSD를 대출하려면 Sepolia 또는 Arbitrum Sepolia로 전환하세요
+                    Please switch to Sepolia or Arbitrum Sepolia to borrow PYUSD
                   </p>
                 </div>
                 <w3m-button />
@@ -257,18 +257,18 @@ export default function BorrowPage() {
                 {isCrossChain && (
                   <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
                     <h3 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">
-                      🌉 Cross-Chain Borrow 활성화
+                      🌉 Cross-Chain Borrow Enabled
                     </h3>
                     <p className="text-sm text-purple-600 dark:text-purple-300 mb-2">
-                      ETH가 (from Arbitrum Sepolia) Sepolia로 브릿지되고, 자동으로 PYUSD를 대출합니다.
+                      ETH will be bridged from Arbitrum Sepolia to Sepolia and automatically borrow PYUSD.
                     </p>
                     <div className="flex items-center justify-between text-sm mt-2 text-purple-700 dark:text-purple-300">
                       <div>
-                        <span className="font-semibold">출발:</span> Arbitrum Sepolia
+                        <span className="font-semibold">From:</span> Arbitrum Sepolia
                       </div>
                       <span className="text-2xl">→</span>
                       <div>
-                        <span className="font-semibold">도착:</span> Sepolia
+                        <span className="font-semibold">To:</span> Sepolia
                       </div>
                     </div>
                   </div>
@@ -325,7 +325,7 @@ export default function BorrowPage() {
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                   />
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    <span>0% (숏 없음)</span>
+                    <span>0% (No Short)</span>
                     <span>30% (Max Short)</span>
                   </div>
                 </div>
@@ -371,13 +371,13 @@ export default function BorrowPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">청산 비율</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Liquidation Ratio</p>
                       <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                         {liquidationRatio}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">숏 포지션</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Short Position</p>
                       <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                         {shortRatio}%
                       </p>
@@ -410,13 +410,13 @@ export default function BorrowPage() {
                   } text-white rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg`}
                 >
                   {isCrossChain && !nexusSdk
-                    ? "Nexus SDK 초기화 중..."
+                    ? "Initializing Nexus SDK..."
                     : isPending || isProcessing
-                      ? "승인 중..."
+                      ? "Confirming..."
                       : isConfirming
                         ? "Processing..."
                         : isCrossChain
-                          ? "ETH 브릿지 & PYUSD 대출"
+                          ? "Bridge ETH & Borrow PYUSD"
                           : "Borrow PYUSD"}
                 </button>
 
@@ -424,12 +424,12 @@ export default function BorrowPage() {
                 {(isSuccess || txHash) && (
                   <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-green-800 dark:text-green-200 mb-2">
-                      ✅ {isCrossChain ? "Cross-Chain Borrow" : "대출"} 성공!
+                      ✅ {isCrossChain ? "Cross-Chain Borrow" : "Borrow"} Successful!
                     </p>
                     {txHash && (
                       <>
                         <p className="text-sm text-green-700 dark:text-green-300 mb-2">
-                          대출 포지션 NFT가 Sepolia에서 발행되었습니다
+                          Loan Position NFT has been minted on Sepolia
                         </p>
                         <a
                           href={`https://sepolia.etherscan.io/tx/${txHash}`}
@@ -437,12 +437,12 @@ export default function BorrowPage() {
                           rel="noopener noreferrer"
                           className="text-sm text-green-600 dark:text-green-400 hover:underline block mb-2"
                         >
-                          Sepolia Etherscan에서 보기 →
+                          View on Sepolia Etherscan →
                         </a>
                       </>
                     )}
                     <Link href="/my-loans" className="text-sm text-green-600 dark:text-green-400 hover:underline font-semibold">
-                      내 포지션 보기 →
+                      View My Positions →
                     </Link>
                   </div>
                 )}

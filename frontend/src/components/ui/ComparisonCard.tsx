@@ -44,7 +44,7 @@ export default function ComparisonCard() {
 
           <div className="mt-6 text-center text-sm text-gray-500">
             ❌ No NFT Loan Positions<br />
-            ❌ Collateral Yield 없음<br />
+            ❌ No Collateral Yield<br />
             ❌ No Flash Loan Revenue
           </div>
         </div>
