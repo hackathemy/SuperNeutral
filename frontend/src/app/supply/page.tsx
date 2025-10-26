@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Header from "@/components/Header";
 import Link from "next/link";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
@@ -140,22 +140,12 @@ export default function SupplyPage() {
     : "1.000000";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/">
-            <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer">
-              ETH Lending Protocol
-            </h1>
-          </Link>
-          <ConnectButton />
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <Header />
 
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center">Supply Liquidity & Earn sPYUSD</h2>
+          <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">공급하기: PYUSD 공급 & sPYUSD 획득</h2>
 
           {/* Exchange Rate Info */}
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl p-6 mb-8">
@@ -229,9 +219,9 @@ export default function SupplyPage() {
             {!isConnected ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Please connect your wallet to supply PYUSD
+                  지갑을 연결하여 PYUSD를 공급하세요
                 </p>
-                <ConnectButton />
+                <w3m-button />
               </div>
             ) : (
               <>
@@ -279,21 +269,21 @@ export default function SupplyPage() {
                     onClick={() => setActiveTab("supply")}
                     className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
                       activeTab === "supply"
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
                         : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    Supply PYUSD
+                    공급하기
                   </button>
                   <button
                     onClick={() => setActiveTab("withdraw")}
                     className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
                       activeTab === "withdraw"
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
                         : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    Withdraw
+                    출금하기
                   </button>
                 </div>
 
@@ -338,9 +328,9 @@ export default function SupplyPage() {
                     <button
                       onClick={handleSupply}
                       disabled={!supplyAmount || isPending || isConfirming}
-                      className="w-full px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                     >
-                      {isPending ? "Confirming..." : isConfirming ? "Processing..." : "Supply PYUSD"}
+                      {isPending ? "승인 중..." : isConfirming ? "처리 중..." : "PYUSD 공급하기"}
                     </button>
 
                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -392,9 +382,9 @@ export default function SupplyPage() {
                     <button
                       onClick={handleWithdraw}
                       disabled={!withdrawAmount || isPending || isConfirming}
-                      className="w-full px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                     >
-                      {isPending ? "Confirming..." : isConfirming ? "Processing..." : "Withdraw PYUSD"}
+                      {isPending ? "승인 중..." : isConfirming ? "처리 중..." : "PYUSD 출금하기"}
                     </button>
 
                     <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
@@ -417,18 +407,18 @@ export default function SupplyPage() {
           </div>
 
           {/* Get PYUSD for Testing */}
-          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-3">Need PYUSD for Testing?</h3>
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">테스트용 PYUSD가 필요하신가요?</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Get 10,000 PYUSD from our faucet for testing on Sepolia
+              Sepolia 테스트넷에서 사용할 PYUSD를 무료로 받으세요
             </p>
             <a
-              href={`https://sepolia.etherscan.io/address/${CONTRACTS.PYUSD}#writeContract`}
+              href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-lg"
             >
-              Get Test PYUSD
+              PYUSD 받기 →
             </a>
           </div>
         </div>

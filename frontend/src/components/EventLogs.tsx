@@ -189,10 +189,10 @@ export default function EventLogs() {
   const eventTypes = ["all", "supply", "borrow", "repay", "liquidation", "flash loan", "withdraw"];
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Event Logs</h2>
-        <span className="text-sm text-gray-500">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Event Logs</h2>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           {filteredEvents.length} event{filteredEvents.length !== 1 ? "s" : ""}
         </span>
       </div>
@@ -205,8 +205,8 @@ export default function EventLogs() {
             onClick={() => setFilter(type)}
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
               filter === type
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-indigo-600 dark:bg-indigo-500 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
             }`}
           >
             {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -216,13 +216,13 @@ export default function EventLogs() {
 
       {/* Event Timeline */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading events...</div>
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading events...</div>
       ) : filteredEvents.length > 0 ? (
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
           {filteredEvents.map((event, index) => (
             <div
               key={`${event.txHash}-${index}`}
-              className="rounded-lg border border-gray-200 p-4 hover:bg-gray-50 transition-colors"
+              className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
             >
               <div className="flex items-start gap-3">
                 {/* Icon */}
@@ -329,20 +329,20 @@ export default function EventLogs() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-          <p className="text-gray-500 mb-2">
+        <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+          <p className="text-gray-500 dark:text-gray-400 mb-2">
             {filter === "all" ? "No events yet" : `No ${filter} events`}
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 dark:text-gray-500">
             Events will appear here as users interact with the protocol
           </p>
         </div>
       )}
 
       {/* Live Indicator */}
-      <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-600 dark:text-gray-400">
           Auto-refreshing every 30 seconds
         </span>
       </div>

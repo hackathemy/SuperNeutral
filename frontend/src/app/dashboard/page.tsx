@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Header from "@/components/Header";
 import ProtocolAnalytics from "@/components/ProtocolAnalytics";
 import UserPortfolio from "@/components/UserPortfolio";
 import EventLogs from "@/components/EventLogs";
@@ -19,38 +19,19 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                    />
-                  </svg>
-                  Back to Home
-                </Link>
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Protocol Dashboard
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                분석 대시보드
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Real-time on-chain analytics powered by Blockscout
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                Blockscout 기반 실시간 온체인 분석
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -58,9 +39,9 @@ export default function DashboardPage() {
                 href={EXPLORER_URLS.LendingPool}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition shadow-md"
               >
-                <span>View on Blockscout</span>
+                <span>Blockscout에서 보기</span>
                 <svg
                   className="w-4 h-4"
                   fill="none"
@@ -75,20 +56,19 @@ export default function DashboardPage() {
                   />
                 </svg>
               </a>
-              <w3m-button />
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="mt-6 flex gap-2 border-b border-gray-200">
+          <div className="mt-6 flex gap-2 border-b border-gray-200 dark:border-gray-700">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
                 }`}
               >
                 <span>{tab.icon}</span>
@@ -108,11 +88,11 @@ export default function DashboardPage() {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg hover:shadow-xl transition">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                     <svg
-                      className="w-6 h-6 text-green-600"
+                      className="w-6 h-6 text-green-600 dark:text-green-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -132,11 +112,11 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg hover:shadow-xl transition">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                     <svg
-                      className="w-6 h-6 text-blue-600"
+                      className="w-6 h-6 text-indigo-600 dark:text-indigo-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -156,11 +136,11 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg hover:shadow-xl transition">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                     <svg
-                      className="w-6 h-6 text-purple-600"
+                      className="w-6 h-6 text-purple-600 dark:text-purple-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -182,17 +162,17 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Events Preview */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Recent Activity</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                 <button
                   onClick={() => setActiveTab("events")}
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
                   View all events →
                 </button>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Latest protocol events and transactions
               </p>
             </div>
@@ -205,11 +185,11 @@ export default function DashboardPage() {
             <UserPortfolio />
 
             {/* Portfolio Guide */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3">
-                📚 How to Use Your Portfolio
+            <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30 p-6">
+              <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-100 mb-3">
+                📚 포트폴리오 사용 가이드
               </h3>
-              <ul className="space-y-2 text-sm text-blue-800">
+              <ul className="space-y-2 text-sm text-indigo-800 dark:text-indigo-200">
                 <li className="flex items-start gap-2">
                   <span className="mt-1">•</span>
                   <span>
@@ -249,8 +229,8 @@ export default function DashboardPage() {
             <EventLogs />
 
             {/* Event Types Legend */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold mb-4">Event Types</h3>
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Event Types</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">💰</span>
@@ -313,16 +293,16 @@ export default function DashboardPage() {
       </div>
 
       {/* Footer */}
-      <div className="bg-white border-t border-gray-200 mt-12">
+      <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <div>
               Powered by{" "}
               <a
                 href="https://www.blockscout.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
               >
                 Blockscout
               </a>{" "}
@@ -331,7 +311,7 @@ export default function DashboardPage() {
                 href="https://pyth.network"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
               >
                 Pyth Network
               </a>
@@ -341,7 +321,7 @@ export default function DashboardPage() {
                 href="https://sepolia.etherscan.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
               >
                 Sepolia Testnet
               </a>
