@@ -225,20 +225,7 @@ export default function BorrowPage() {
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">빌리기: PYUSD 대출</h2>
-            {isConnected && (
-              <div className={networkInfo.badgeClasses}>
-                <span className="text-lg">{networkInfo.icon}</span>
-                <div className="text-left">
-                  <p className={networkInfo.nameClasses}>
-                    {networkInfo.name}
-                  </p>
-                  <p className={networkInfo.descClasses}>
-                    {networkInfo.description}
-                  </p>
-                </div>
-              </div>
-            )}
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">빌리기: PYUSD 대출</h2>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
@@ -298,7 +285,7 @@ export default function BorrowPage() {
                     step="0.01"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    ETH 가격: ${ethPrice ? Number(formatUnits(ethPrice, 8)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "로딩 중..."}
+                    ETH 가격: ${ethPrice ? Number(formatUnits(ethPrice, 18)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "로딩 중..."}
                   </p>
                 </div>
 
