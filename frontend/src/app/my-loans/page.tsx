@@ -113,7 +113,7 @@ export default function MyLoansPage() {
               args: [tokenId],
             }) as bigint;
 
-            console.log("Health Factor:", healthFactorRaw.toString());
+            console.log("Health Factor Raw:", healthFactorRaw.toString());
 
             // Get accumulated interest from contract
             const interest = await publicClient.readContract({
@@ -125,8 +125,19 @@ export default function MyLoansPage() {
 
             console.log("Interest:", interest.toString());
 
-            // Convert health factor from basis points (e.g., 15000 = 1.5x)
-            const healthFactor = (Number(healthFactorRaw) / 10000).toFixed(2);
+            // Safely convert health factor from basis points (e.g., 15000 = 1.5x)
+            let healthFactor: string;
+
+            // Check if health factor is too large (debt is 0 or very small)
+            if (healthFactorRaw > BigInt(10000000)) { // > 1000x
+              healthFactor = "∞"; // Infinite - no debt or extremely safe
+            } else {
+              // Convert from basis points to decimal (10000 = 1.0x)
+              const healthFactorNum = Number(healthFactorRaw) / 10000;
+              healthFactor = healthFactorNum.toFixed(2);
+            }
+
+            console.log("Health Factor Formatted:", healthFactor);
 
             loanData.push({
               tokenId,
@@ -309,18 +320,21 @@ export default function MyLoansPage() {
                         <div className="text-right">
                           <p className="text-sm text-gray-500 dark:text-gray-400">Health Factor</p>
                           <p className={`text-2xl font-bold ${
+                            loan.healthFactor === "∞" ? "text-green-600 dark:text-green-400" :
                             parseFloat(loan.healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
                             parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
                             "text-red-600 dark:text-red-400"
                           }`}>
-                            {loan.healthFactor}x
+                            {loan.healthFactor === "∞" ? "∞" : `${loan.healthFactor}x`}
                           </p>
                           <p className={`text-xs ${
+                            loan.healthFactor === "∞" ? "text-green-600 dark:text-green-400" :
                             parseFloat(loan.healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
                             parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
                             "text-red-600 dark:text-red-400"
                           }`}>
-                            {parseFloat(loan.healthFactor) >= 1.5 ? "Safe" :
+                            {loan.healthFactor === "∞" ? "Very Safe" :
+                             parseFloat(loan.healthFactor) >= 1.5 ? "Safe" :
                              parseFloat(loan.healthFactor) >= 1.2 ? "Warning" :
                              "Danger"}
                           </p>
