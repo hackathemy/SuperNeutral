@@ -207,7 +207,7 @@ export default function UserPortfolio() {
               args: [tokenId],
             }) as bigint;
 
-            console.log("UserPortfolio: Health factor", healthFactorRaw.toString());
+            console.log("UserPortfolio: Health factor raw", healthFactorRaw.toString());
 
             // Get accumulated interest from contract
             console.log("UserPortfolio: Calling calculateInterest...");
@@ -220,8 +220,19 @@ export default function UserPortfolio() {
 
             console.log("UserPortfolio: Interest", interest.toString());
 
-            // Convert health factor from basis points (e.g., 15000 = 1.5x)
-            const healthFactor = (Number(healthFactorRaw) / 10000).toFixed(2);
+            // Safely convert health factor from basis points (e.g., 15000 = 1.5x)
+            let healthFactor: string;
+
+            // Check if health factor is too large (debt is 0 or very small)
+            if (healthFactorRaw > BigInt(10000000)) { // > 1000x
+              healthFactor = "∞"; // Infinite - no debt or extremely safe
+            } else {
+              // Convert from basis points to decimal (10000 = 1.0x)
+              const healthFactorNum = Number(healthFactorRaw) / 10000;
+              healthFactor = healthFactorNum.toFixed(2);
+            }
+
+            console.log("UserPortfolio: Health factor formatted", healthFactor);
 
             positions.push({
               tokenId,
@@ -402,11 +413,12 @@ export default function UserPortfolio() {
                   <div>
                     <div className="text-gray-600 dark:text-gray-400">Health Factor</div>
                     <div className={`font-medium ${
+                      loan.healthFactor === "∞" ? "text-green-600 dark:text-green-400" :
                       parseFloat(loan.healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
                       parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
                       "text-red-600 dark:text-red-400"
                     }`}>
-                      {loan.healthFactor}x
+                      {loan.healthFactor === "∞" ? "∞" : `${loan.healthFactor}x`}
                     </div>
                   </div>
                 </div>
