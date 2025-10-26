@@ -10,7 +10,7 @@ export default function Header() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition">
@@ -27,7 +27,7 @@ export default function Header() {
                 : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
             }`}
           >
-            🏦 빌리기
+            🏦 Borrow
           </Link>
           <Link
             href="/supply"
@@ -37,7 +37,7 @@ export default function Header() {
                 : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
             }`}
           >
-            💰 공급하기
+            💰 Supply
           </Link>
           <Link
             href="/my-loans"
@@ -47,7 +47,7 @@ export default function Header() {
                 : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
             }`}
           >
-            🎫 내 포지션 NFT
+            🎫 My Positions
           </Link>
           <Link
             href="/dashboard"
@@ -57,7 +57,7 @@ export default function Header() {
                 : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
             }`}
           >
-            📊 분석 대시보드
+            📊 Dashboard
           </Link>
         </nav>
 

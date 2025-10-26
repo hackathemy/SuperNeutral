@@ -169,12 +169,12 @@ export default function MyLoansPage() {
 
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">내 포지션 NFT</h2>
+          <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">My Loan Positions</h2>
 
           {!isConnected ? (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center border border-gray-200 dark:border-gray-700">
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                지갑을 연결하여 대출 포지션을 확인하세요
+                Connect your wallet to view your loan positions
               </p>
               <w3m-button />
             </div>
@@ -183,19 +183,19 @@ export default function MyLoansPage() {
               {/* Stats Overview */}
               <div className="grid md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">활성 대출</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Active Loans</p>
                   <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                     {userLoanIds ? userLoanIds.length : "0"}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 대출액</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Borrowed</p>
                   <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                     {loans.reduce((sum, loan) => sum + Number(loan.debt) / 10 ** 6, 0).toFixed(2)} PYUSD
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 담보</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Collateral</p>
                   <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                     {loans.reduce((sum, loan) => sum + Number(formatEther(loan.collateral)), 0).toFixed(4)} ETH
                   </p>
@@ -206,13 +206,13 @@ export default function MyLoansPage() {
               {!userLoanIds || userLoanIds.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center border border-gray-200 dark:border-gray-700">
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    활성 대출 포지션이 없습니다
+                    Active Loans 포지션이 없습니다
                   </p>
                   <Link
                     href="/borrow"
                     className="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg"
                   >
-                    PYUSD 대출하기
+                    Borrow PYUSD
                   </Link>
                 </div>
               ) : (
@@ -225,17 +225,17 @@ export default function MyLoansPage() {
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                            대출 포지션 #{loan.tokenId.toString()}
+                            Loan Position #{loan.tokenId.toString()}
                           </h3>
                           <div className="flex gap-4">
                             <div>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">담보</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Collateral</p>
                               <p className="text-lg font-semibold text-gray-900 dark:text-white">
                                 {formatEther(loan.collateral)} ETH
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">부채</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Debt</p>
                               <p className="text-lg font-semibold text-gray-900 dark:text-white">
                                 {(Number(loan.debt) / 10 ** 6).toFixed(2)} PYUSD
                               </p>
@@ -243,7 +243,7 @@ export default function MyLoansPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">건강도</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Health Factor</p>
                           <p className={`text-2xl font-bold ${
                             parseFloat(loan.healthFactor) >= 1.5 ? "text-green-600 dark:text-green-400" :
                             parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
@@ -256,9 +256,9 @@ export default function MyLoansPage() {
                             parseFloat(loan.healthFactor) >= 1.2 ? "text-yellow-600 dark:text-yellow-400" :
                             "text-red-600 dark:text-red-400"
                           }`}>
-                            {parseFloat(loan.healthFactor) >= 1.5 ? "안전" :
-                             parseFloat(loan.healthFactor) >= 1.2 ? "주의" :
-                             "위험"}
+                            {parseFloat(loan.healthFactor) >= 1.5 ? "Safe" :
+                             parseFloat(loan.healthFactor) >= 1.2 ? "Warning" :
+                             "Danger"}
                           </p>
                         </div>
                       </div>
@@ -267,7 +267,7 @@ export default function MyLoansPage() {
                       <div className="space-y-4 mt-6">
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">담보 추가 (ETH)</label>
+                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Collateral Add (ETH)</label>
                             <div className="flex gap-2">
                               <input
                                 type="number"
@@ -276,7 +276,7 @@ export default function MyLoansPage() {
                                   setSelectedLoan(loan.tokenId);
                                   setAddCollateralAmount(e.target.value);
                                 }}
-                                placeholder="금액"
+                                placeholder="Amount"
                                 className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                               <button
@@ -284,12 +284,12 @@ export default function MyLoansPage() {
                                 disabled={isPending || isConfirming || !addCollateralAmount}
                                 className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-50 shadow-lg"
                               >
-                                추가
+                                Add
                               </button>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">부분 상환 (PYUSD)</label>
+                            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">부분 Repay (PYUSD)</label>
                             <div className="flex gap-2">
                               <input
                                 type="number"
@@ -298,7 +298,7 @@ export default function MyLoansPage() {
                                   setSelectedLoan(loan.tokenId);
                                   setRepayAmount(e.target.value);
                                 }}
-                                placeholder="금액"
+                                placeholder="Amount"
                                 className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                               <button
@@ -306,7 +306,7 @@ export default function MyLoansPage() {
                                 disabled={isPending || isConfirming || !repayAmount}
                                 className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition disabled:opacity-50 shadow-lg"
                               >
-                                상환
+                                Repay
                               </button>
                             </div>
                           </div>
@@ -319,10 +319,10 @@ export default function MyLoansPage() {
                             disabled={isPending || isConfirming}
                             className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg font-semibold hover:from-red-700 hover:to-pink-700 transition disabled:opacity-50 shadow-lg"
                           >
-                            🔒 전액 상환 및 포지션 종료
+                            🔒 Repay in Full and Close
                           </button>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                            전체 부채 + 이자를 상환하고 담보를 반환받습니다
+                            Repay all debt + interest and receive collateral back
                           </p>
                         </div>
                       </div>

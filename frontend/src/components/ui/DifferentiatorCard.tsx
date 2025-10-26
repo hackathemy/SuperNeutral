@@ -24,7 +24,7 @@ export default function DifferentiatorCard({ icon, title, before, after, link }:
           <div className="flex items-start gap-2">
             <span className="text-red-500 text-xl flex-shrink-0">❌</span>
             <div>
-              <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-1">기존 방식</div>
+              <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-1">Traditional Way</div>
               <p className="text-sm text-gray-700 dark:text-gray-300">{before}</p>
             </div>
           </div>
@@ -42,7 +42,7 @@ export default function DifferentiatorCard({ icon, title, before, after, link }:
         </div>
 
         <div className="mt-6 text-center text-indigo-600 dark:text-indigo-400 font-medium group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition">
-          자세히 보기 →
+          Learn More →
         </div>
       </div>
     </Link>

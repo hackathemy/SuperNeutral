@@ -14,27 +14,27 @@ export default function Home() {
         {/* Hero Section - 2.7x Emphasis */}
         <section className="py-16 text-center">
           <div className="inline-block mb-4 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full font-bold shadow-lg animate-pulse">
-            🏆 기존 렌딩보다 2.7배 높은 수익
+            🏆 2.7x Higher Returns than Traditional Lending
           </div>
 
           <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
-            ETH 담보로 PYUSD 대출
+            Borrow PYUSD with ETH Collateral
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              수익은 21.5% APY
+              Earn 21.5% APY
             </span>
           </h2>
 
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12">
-            ETH를 예치하고 스테이킹 보상을 받으며, PYUSD 스테이블코인을 대출하세요.
+            Deposit ETH, earn staking rewards, and borrow PYUSD stablecoin.
             <br />
-            대출 포지션은 NFT로 표현되어 OpenSea에서 거래할 수 있습니다.
+            Loan positions are represented as NFTs and can be traded on OpenSea.
           </p>
 
           {/* Quick APY Comparison */}
           <div className="flex justify-center gap-8 mb-16">
             <div className="bg-gray-100 dark:bg-gray-800 px-8 py-6 rounded-xl shadow-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Aave 같은 기존 렌딩</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Traditional Lending (like Aave)</div>
               <div className="text-4xl font-bold text-gray-600 dark:text-gray-400">8% APY</div>
             </div>
             <div className="flex items-center">
@@ -43,7 +43,7 @@ export default function Home() {
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 px-8 py-6 rounded-xl shadow-2xl transform scale-110">
               <div className="text-sm text-indigo-100 mb-2">SuperNeutral</div>
               <div className="text-4xl font-bold text-white">21.5% APY</div>
-              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 2.7배 더 높은 수익</div>
+              <div className="text-xs text-yellow-300 mt-2 font-bold">⚡ 2.7x Higher Returns</div>
             </div>
           </div>
         </section>
@@ -56,32 +56,32 @@ export default function Home() {
         {/* Why SuperNeutral? Section */}
         <section className="py-16">
           <h3 className="text-4xl font-bold text-center mb-4 text-gray-900 dark:text-white">
-            왜 SuperNeutral인가?
+            Why SuperNeutral?
           </h3>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-12 text-lg">
-            기존 렌딩 프로토콜과 완전히 다른 3가지 혁신
+            3 Innovations That Set Us Apart from Traditional Lending
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
             <DifferentiatorCard
               icon="🎫"
-              title="NFT 대출 포지션"
-              before="대출 포지션을 팔거나 양도할 수 없음"
-              after="ERC-721 NFT로 OpenSea에서 자유롭게 거래 가능"
+              title="NFT Loan Positions"
+              before="Cannot sell or transfer loan positions"
+              after="Freely tradeable as ERC-721 NFT on OpenSea"
               link="/my-loans"
             />
             <DifferentiatorCard
               icon="💰"
-              title="3배 수익 구조"
-              before="대출 이자만 받음 (단일 수익원)"
-              after="담보 수익(7%) + 대출(12%) + Flash Loan(1.6%) + 유휴자금(0.9%) = 4가지 수익원"
+              title="Multi-Revenue Model"
+              before="Single income stream"
+              after="4 income streams: Collateral (7%) + Lending (12%) + Flash Loans (1.6%) + Idle Funds (0.9%)"
               link="/supply"
             />
             <DifferentiatorCard
               icon="⚖️"
-              title="유연한 리스크 관리"
-              before="고정된 청산 비율 (75%)"
-              after="50-80% 사이에서 선택 가능한 청산 비율"
+              title="Flexible Risk Management"
+              before="Fixed liquidation ratio (75%)"
+              after="Choose liquidation ratio between 50-80%"
               link="/borrow"
             />
           </div>
@@ -90,27 +90,27 @@ export default function Home() {
         {/* Feature Cards Section */}
         <section className="py-16">
           <h3 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
-            핵심 기능
+            Core Features
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard
-              title="🏦 PYUSD 대출"
-              description="ETH를 담보로 PYUSD 대출. Sepolia (직접) 및 Arbitrum Sepolia (Avail Nexus 크로스체인) 지원"
+              title="🏦 Borrow PYUSD"
+              description="Use ETH as collateral to borrow PYUSD stablecoin on Sepolia and Arbitrum Sepolia"
               link="/borrow"
             />
             <FeatureCard
-              title="🎫 NFT 포지션"
-              description="대출이 ERC-721 NFT로 표현되어 양도 및 거래 가능"
+              title="🎫 NFT Positions"
+              description="Loans represented as ERC-721 NFTs, transferable and tradeable"
               link="/my-loans"
             />
             <FeatureCard
-              title="💰 sPYUSD 획득"
-              description="PYUSD를 공급하고 이자가 자동으로 증가하는 sPYUSD 토큰 획득"
+              title="💰 Earn sPYUSD"
+              description="Supply PYUSD to earn sPYUSD tokens with automatic yield growth"
               link="/supply"
             />
             <FeatureCard
-              title="📊 분석 대시보드"
-              description="Blockscout 기반 실시간 프로토콜 분석, 포트폴리오 및 이벤트 로그 확인"
+              title="📊 Analytics Dashboard"
+              description="Real-time protocol analytics powered by Blockscout, portfolio and event log tracking"
               link="/dashboard"
             />
           </div>
@@ -120,13 +120,13 @@ export default function Home() {
         <section className="py-16">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
             <h3 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
-              프로토콜 통계
+              Protocol Statistics
             </h3>
             <div className="grid md:grid-cols-4 gap-6">
-              <StatCard label="총 공급량" value="100,000 PYUSD" highlight />
-              <StatCard label="총 대출량" value="500 PYUSD" />
-              <StatCard label="활성 대출" value="1개" />
-              <StatCard label="ETH 가격" value="$2,000" />
+              <StatCard label="Total Supply" value="100,000 PYUSD" highlight />
+              <StatCard label="Total Borrowed" value="500 PYUSD" />
+              <StatCard label="Active Loans" value="1개" />
+              <StatCard label="ETH Price" value="$2,000" />
             </div>
           </div>
         </section>
@@ -134,26 +134,26 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-16 text-center">
           <h3 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-            지금 바로 시작하세요
+            Get Started Now
           </h3>
           <div className="flex flex-wrap justify-center gap-6">
             <Link
               href="/borrow"
               className="px-10 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition shadow-xl hover:shadow-2xl transform hover:scale-105"
             >
-              🚀 대출 시작하기
+              🚀 Start Borrowing
             </Link>
             <Link
               href="/supply"
               className="px-10 py-5 bg-white dark:bg-gray-800 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 border-2 border-indigo-600 dark:border-indigo-400 rounded-xl font-bold text-lg hover:bg-indigo-50 dark:hover:bg-gray-700 transition shadow-xl hover:shadow-2xl transform hover:scale-105"
             >
-              💰 공급하고 21.5% 받기
+              💰 Supply and Earn 21.5%
             </Link>
             <Link
               href="/dashboard"
               className="px-10 py-5 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:scale-105"
             >
-              📊 분석 대시보드
+              📊 Analytics Dashboard
             </Link>
           </div>
         </section>
@@ -167,7 +167,7 @@ export default function Home() {
               SuperNeutral
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              기존 렌딩보다 2.7배 높은 수익 | Sepolia 테스트넷 | LIDO & Pyth Oracle 기반
+              2.7x Higher Returns than Traditional Lending | Sepolia Testnet | Powered by LIDO & Pyth Oracle
             </p>
           </div>
 

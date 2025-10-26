@@ -232,11 +232,18 @@ export default function EventLogs() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium bg-${event.color}-100 text-${event.color}-800`}
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        event.color === "green" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200" :
+                        event.color === "blue" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200" :
+                        event.color === "red" ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200" :
+                        event.color === "purple" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200" :
+                        event.color === "orange" ? "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200" :
+                        "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200"
+                      }`}
                     >
                       {event.eventName}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       Block #{event.blockNumber.toLocaleString()}
                     </span>
                   </div>
@@ -245,8 +252,8 @@ export default function EventLogs() {
                   <div className="text-sm space-y-1">
                     {event.user && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">User:</span>
-                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        <span className="text-gray-600 dark:text-gray-400">User:</span>
+                        <code className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded">
                           {event.user.slice(0, 6)}...{event.user.slice(-4)}
                         </code>
                       </div>
@@ -254,8 +261,8 @@ export default function EventLogs() {
 
                     {event.amount && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">Amount:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-400">Amount:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {(() => {
                             try {
                               return formatUnits(BigInt(event.amount), 6) + " PYUSD";
@@ -269,8 +276,8 @@ export default function EventLogs() {
 
                     {event.collateral && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">Collateral:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-400">Collateral:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {(() => {
                             try {
                               return formatUnits(BigInt(event.collateral), 18) + " ETH";
@@ -284,8 +291,8 @@ export default function EventLogs() {
 
                     {event.debt && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">Debt:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-400">Debt:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {(() => {
                             try {
                               return formatUnits(BigInt(event.debt), 6) + " PYUSD";
@@ -299,27 +306,27 @@ export default function EventLogs() {
 
                     {event.tokenId && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">Loan NFT:</span>
-                        <span className="font-medium">#{event.tokenId}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Loan NFT:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">#{event.tokenId}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Transaction Link & Timestamp */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                     {event.txHash ? (
                       <a
                         href={`https://sepolia.etherscan.io/tx/${event.txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline font-mono"
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono"
                       >
                         {event.txHash.slice(0, 10)}...{event.txHash.slice(-8)}
                       </a>
                     ) : (
-                      <span className="text-xs text-gray-400 font-mono">No tx hash</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">No tx hash</span>
                     )}
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(event.timestamp).toLocaleString()}
                     </span>
                   </div>
